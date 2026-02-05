@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>2지선다 게임 템플릿</title>
+  <title>이찬송 연애시뮬레이션</title>
   <style>
-    :root { --bg:#0b1020; --card:#121a33; --muted:#9aa4c7; --text:#e8ecff; }
+    :root { --bg:#0b1020; --muted:#9aa4c7; --text:#e8ecff; }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body {
+    body{
       margin:0; min-height:100vh;
       background: radial-gradient(1200px 800px at 20% 0%, #1b2a63 0%, var(--bg) 55%);
       color:var(--text);
@@ -15,39 +15,97 @@
       padding: 18px 16px env(safe-area-inset-bottom);
       display:flex; justify-content:center;
     }
-    .wrap { width: min(720px, 100%); }
-    header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom: 12px; }
-    h1 { font-size: 18px; margin:0; letter-spacing: .2px; }
-    .btn {
+    .wrap { width: min(820px, 100%); }
+
+    .btn{
       border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
+      background: rgba(255,255,255,.08);
       color: var(--text);
-      padding: 10px 12px;
-      border-radius: 12px;
-      font-weight: 700;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-weight: 900;
       cursor:pointer;
+      touch-action: manipulation;
     }
-    .btn:active { transform: translateY(1px); }
-    .card {
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+    .btn:active{ transform: translateY(1px); }
+    .btn.primary{
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 16px;
+      background: rgba(37,99,235,.35);
+      border-color: rgba(37,99,235,.6);
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
       border: 1px solid rgba(255,255,255,.12);
       border-radius: 18px;
       padding: 16px;
       box-shadow: 0 18px 50px rgba(0,0,0,.45);
     }
-    .scene-title { font-size: 15px; color: var(--muted); margin:0 0 6px; }
+
+    /* ===== Start Screen ===== */
+    #startScreen{
+      min-height: calc(100vh - 36px);
+      display:flex;
+      align-items:center;
+    }
+    .start-card{
+      width: 100%;
+      padding: 22px;
+    }
+    .title{
+      margin:0;
+      font-size: 26px;
+      letter-spacing: .2px;
+      line-height: 1.15;
+    }
+    .subtitle{
+      margin: 10px 0 0;
+      font-size: 16px;
+      color: rgba(232,236,255,.92);
+      line-height: 1.5;
+      font-weight: 800;
+    }
+    .bullets{
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+    .bullet{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      border-radius: 14px;
+      padding: 12px 12px;
+      color: rgba(232,236,255,.92);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+    .muted{ color: var(--muted); }
+
+    /* ===== Game Screen ===== */
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom: 12px;
+    }
+    h1.gameh1{ font-size: 16px; margin:0; color: rgba(232,236,255,.92); }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end; }
+
+    .scene-title { font-size: 14px; color: var(--muted); margin:0 0 6px; }
     .scene-text { font-size: 18px; line-height: 1.45; margin: 0; }
-    .choices {
+
+    .choices{
       margin-top: 14px;
       display:grid;
       grid-template-columns: 1fr;
       gap: 12px;
     }
-    @media (min-width: 520px) {
-      .choices { grid-template-columns: 1fr 1fr; }
+    @media (min-width: 520px){
+      .choices{ grid-template-columns: 1fr 1fr; }
     }
-    .choice {
-      display:flex; flex-direction: column;
+    .choice{
+      display:flex; flex-direction:column;
       border-radius: 16px;
       overflow:hidden;
       border:1px solid rgba(255,255,255,.14);
@@ -56,8 +114,8 @@
       min-height: 220px;
       touch-action: manipulation;
     }
-    .choice:active { transform: translateY(1px); }
-    .img {
+    .choice:active{ transform: translateY(1px); }
+    .img{
       width:100%;
       height: 140px;
       background: rgba(255,255,255,.06);
@@ -65,20 +123,26 @@
       align-items:center;
       justify-content:center;
       color: rgba(255,255,255,.75);
-      font-weight:800;
+      font-weight:900;
     }
-    .img img { width:100%; height:100%; object-fit: cover; display:block; }
-    .choice-body { padding: 12px; display:flex; gap:10px; flex-direction:column; }
-    .choice-text { font-size: 16px; font-weight: 800; margin:0; }
-    .choice-sub { font-size: 13px; color: var(--muted); margin:0; line-height:1.35; }
-    .footer {
+    .img img{ width:100%; height:100%; object-fit: cover; display:block; }
+    .choice-body{ padding: 12px; display:flex; gap:8px; flex-direction:column; }
+    .choice-text{ font-size: 16px; font-weight: 900; margin:0; }
+    .choice-sub{ font-size: 13px; color: var(--muted); margin:0; line-height:1.35; }
+
+    .footer{
       margin-top: 10px;
       display:flex; gap:10px; align-items:center; justify-content:space-between;
       color: var(--muted); font-size: 12px;
     }
-    .pill { padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,.14); background: rgba(0,0,0,.18); }
+    .pill{
+      padding: 6px 10px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+    }
 
-    dialog {
+    /* Dialog */
+    dialog{
       border: 1px solid rgba(255,255,255,.18);
       border-radius: 16px;
       background: #0d1430;
@@ -86,106 +150,191 @@
       width: min(560px, 92vw);
       padding: 14px;
     }
-    dialog::backdrop { background: rgba(0,0,0,.55); }
-    .dlg-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    label { font-size: 13px; color: var(--muted); }
-    input[type="file"] { color: var(--muted); }
-    .note { font-size: 12px; color: var(--muted); margin-top: 8px; line-height:1.4; }
+    dialog::backdrop{ background: rgba(0,0,0,.55); }
+    .dlg-row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    label{ font-size: 13px; color: var(--muted); }
+    input[type="file"]{ color: var(--muted); }
+    .note{ font-size: 12px; color: var(--muted); margin-top: 8px; line-height:1.4; }
+
+    /* Hidden helper */
+    .hidden{ display:none !important; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <header>
-      <h1>2지선다 게임 템플릿</h1>
-      <div class="dlg-row">
-        <button class="btn" id="backBtn">뒤로</button>
-        <button class="btn" id="restartBtn">처음</button>
-        <button class="btn" id="imgBtn">사진 바꾸기</button>
-      </div>
-    </header>
 
-    <section class="card">
-      <p class="scene-title" id="sceneTitle"></p>
-      <p class="scene-text" id="sceneText"></p>
+    <!-- ===== 시작 화면 ===== -->
+    <section id="startScreen">
+      <div class="card start-card">
+        <h2 class="title">이찬송 연애시뮬레이션</h2>
+        <p class="subtitle">3가지 내용으로 대차게 차인 그의 연애 스토리 성공할 수 있을 것인가..?</p>
 
-      <div class="choices" id="choices"></div>
+        <ul class="bullets">
+          <li class="bullet"><b>차인 이유 #1</b> — “좋은 사람인데… 그냥 <b>연애 감정이 안 생겨</b>.”</li>
+          <li class="bullet"><b>차인 이유 #2</b> — “너는 너무 <b>착</b>해서… 나랑은 안 맞아.” (착한 게 죄냐?)</li>
+          <li class="bullet"><b>차인 이유 #3</b> — “내가 요즘 바빠서…” (번역: <b>너 말고 다른 일정</b>이 우선)</li>
+        </ul>
 
-      <div class="footer">
-        <span class="pill" id="progress"></span>
-        <span class="pill" id="hint"></span>
+        <p class="muted" style="margin:14px 0 12px; line-height:1.45;">
+          선택 하나로 분위기 박살 or 호감도 상승. 말 한 마디로 엔딩이 갈림.<br/>
+          ※ 뒤로가기는 가능하지만, 인생은 보통 불가능함.
+        </p>
+
+        <button class="btn primary" id="startBtn">연애 시뮬레이션 시작</button>
       </div>
     </section>
 
-    <!-- 현재 장면의 A/B 선택지 사진 업로드 (브라우저에만 저장됨) -->
-    <dialog id="imgDlg">
-      <form method="dialog">
-        <h2 style="margin:0 0 10px; font-size:16px;">현재 장면 선택지 사진 바꾸기</h2>
-        <div class="dlg-row" style="margin-bottom:10px;">
-          <div style="flex:1; min-width:220px;">
-            <label>선택지 A 이미지 업로드</label><br/>
-            <input type="file" accept="image/*" id="fileA" />
-          </div>
-          <div style="flex:1; min-width:220px;">
-            <label>선택지 B 이미지 업로드</label><br/>
-            <input type="file" accept="image/*" id="fileB" />
-          </div>
+    <!-- ===== 게임 화면 ===== -->
+    <section id="gameScreen" class="hidden">
+      <header>
+        <h1 class="gameh1">이찬송 연애시뮬레이션</h1>
+        <div class="row">
+          <button class="btn" id="backBtn">뒤로</button>
+          <button class="btn" id="restartBtn">처음</button>
+          <button class="btn" id="imgBtn">사진 바꾸기</button>
         </div>
-        <div class="dlg-row" style="justify-content:flex-end;">
-          <button class="btn" value="cancel">닫기</button>
-          <button class="btn" id="clearImgs" type="button">이 장면 사진 초기화</button>
+      </header>
+
+      <section class="card">
+        <p class="scene-title" id="sceneTitle"></p>
+        <p class="scene-text" id="sceneText"></p>
+
+        <div class="choices" id="choices"></div>
+
+        <div class="footer">
+          <span class="pill" id="progress"></span>
+          <span class="pill" id="hint"></span>
         </div>
-        <p class="note">
-          업로드한 이미지는 localStorage에 저장되어 “이 브라우저에서만” 보임.
-          GitHub Pages에 영구 반영하려면 images 폴더에 파일을 올리고, 데이터에서 경로를 지정해야 함.
-        </p>
-      </form>
-    </dialog>
+      </section>
+
+      <!-- 선택지 사진 업로드(브라우저에만 저장) -->
+      <dialog id="imgDlg">
+        <form method="dialog">
+          <h2 style="margin:0 0 10px; font-size:16px;">현재 장면 선택지 사진 바꾸기</h2>
+          <div class="dlg-row" style="margin-bottom:10px;">
+            <div style="flex:1; min-width:220px;">
+              <label>선택지 A 이미지 업로드</label><br/>
+              <input type="file" accept="image/*" id="fileA" />
+            </div>
+            <div style="flex:1; min-width:220px;">
+              <label>선택지 B 이미지 업로드</label><br/>
+              <input type="file" accept="image/*" id="fileB" />
+            </div>
+          </div>
+          <div class="dlg-row" style="justify-content:flex-end;">
+            <button class="btn" value="cancel">닫기</button>
+            <button class="btn" id="clearImgs" type="button">이 장면 사진 초기화</button>
+          </div>
+          <p class="note">
+            업로드한 이미지는 localStorage에 저장되어 “이 브라우저에서만” 보임.
+            GitHub Pages에 영구 반영하려면 images 폴더에 파일을 올리고, 아래 STORY에서 img 경로 지정.
+          </p>
+        </form>
+      </dialog>
+    </section>
   </div>
 
   <script>
-    /**
-     * STORY 데이터(스토리 내용은 나중에 채우면 됨)
-     * 규칙:
-     * - 각 노드는 choices 2개(A,B)로 구성
-     * - next는 다음 노드 id
-     * - img는 선택: "images/a.jpg" 같은 경로(깃허브 업로드용)
-     *
-     * 아래는 “내용 없는 형태만” 샘플임. 문구는 전부 바꿔서 쓰면 됨.
-     */
+    /*
+      ====== 스토리 데이터(샘플) ======
+      나중에 네가 스토리 주면 여기만 갈아끼우면 됨.
+      규칙:
+      - 노드마다 choices 2개(A,B)
+      - next: 다음 노드 id
+      - img: (선택) 정적 경로("images/a.jpg")
+    */
     const STORY = {
-      start: {
-        id: "start",
-        title: "장면 제목",
-        text: "장면 본문 텍스트",
+      intro: {
+        id: "intro",
+        title: "챕터 1 — 다시 시작",
+        text: "DM창을 켰다. 첫 문장 한 줄이 모든 걸 결정한다. 어떻게 보낼래?",
         choices: [
-          { key:"A", label:"선택지 A", sub:"설명(선택)", next:"node1", img:"" },
-          { key:"B", label:"선택지 B", sub:"설명(선택)", next:"node2", img:"" },
+          { key:"A", label:"가볍게 안부부터", sub:"무난하지만 존재감이 약할 수도", next:"coffee", img:"" },
+          { key:"B", label:"직진 플러팅", sub:"하이리스크 하이리턴", next:"risk", img:"" },
         ],
       },
-      node1: {
-        id:"node1",
-        title:"장면 제목",
-        text:"장면 본문 텍스트",
+      coffee: {
+        id: "coffee",
+        title: "챕터 1 — 안전한 선택",
+        text: "상대가 답장을 했다. 이제 ‘만남’으로 연결해야 한다. 어떻게 던질래?",
         choices: [
-          { key:"A", label:"선택지 A", sub:"", next:"start", img:"" },
-          { key:"B", label:"선택지 B", sub:"", next:"start", img:"" },
+          { key:"A", label:"카페 제안", sub:"짧고 부담 없는 만남", next:"date1", img:"" },
+          { key:"B", label:"전시/영화 제안", sub:"취향 맞으면 폭발, 아니면 폭망", next:"taste", img:"" },
         ],
       },
-      node2: {
-        id:"node2",
-        title:"장면 제목",
-        text:"장면 본문 텍스트",
+      risk: {
+        id: "risk",
+        title: "챕터 1 — 직진의 대가",
+        text: "상대가 ‘ㅋㅋ’만 보냈다. 이 ‘ㅋㅋ’는 웃음일까 방어일까?",
         choices: [
-          { key:"A", label:"선택지 A", sub:"", next:"start", img:"" },
-          { key:"B", label:"선택지 B", sub:"", next:"start", img:"" },
+          { key:"A", label:"바로 화제 전환", sub:"살짝 민망함 회피", next:"coffee", img:"" },
+          { key:"B", label:"농담으로 한 번 더", sub:"한 번 더 밀면 선 넘을 수도", next:"bad1", img:"" },
+        ],
+      },
+      date1: {
+        id: "date1",
+        title: "챕터 2 — 첫 만남",
+        text: "카페에서 마주 앉았다. 침묵이 2초 생겼다. 바로 던질 말은?",
+        choices: [
+          { key:"A", label:"상대 이야기 질문", sub:"관심 어필(안전)", next:"good1", img:"" },
+          { key:"B", label:"내 TMI 폭격", sub:"친해질 수도, 갑자기 멀어질 수도", next:"bad2", img:"" },
+        ],
+      },
+      taste: {
+        id: "taste",
+        title: "챕터 2 — 취향 승부",
+        text: "상대 취향을 맞췄다. 분위기 좋다. 여기서 ‘다음 약속’까지 뽑을까?",
+        choices: [
+          { key:"A", label:"다음 일정 바로 잡기", sub:"기세로 잡는다", next:"good2", img:"" },
+          { key:"B", label:"오늘은 여기까지만", sub:"여운 남기기", next:"good1", img:"" },
+        ],
+      },
+      good1: {
+        id: "good1",
+        title: "엔딩 후보 — 호감도 상승",
+        text: "대화가 자연스럽게 이어졌다. ‘좋은 사람인데’가 아닌 ‘좋은 사람’이 되기 시작했다.",
+        choices: [
+          { key:"A", label:"처음으로", sub:"다른 루트 보기", next:"intro", img:"" },
+          { key:"B", label:"처음으로", sub:"다른 루트 보기", next:"intro", img:"" },
+        ],
+      },
+      good2: {
+        id: "good2",
+        title: "엔딩 후보 — 다음 약속 확정",
+        text: "다음 약속까지 잡혔다. 이제 남은 건… 실수 안 하는 것.",
+        choices: [
+          { key:"A", label:"처음으로", sub:"다른 루트 보기", next:"intro", img:"" },
+          { key:"B", label:"처음으로", sub:"다른 루트 보기", next:"intro", img:"" },
+        ],
+      },
+      bad1: {
+        id: "bad1",
+        title: "엔딩 — 선 넘음",
+        text: "상대가 ‘아…’ 하더니 답이 끊겼다. 오늘은 여기까지다.",
+        choices: [
+          { key:"A", label:"처음으로", sub:"다시 시도", next:"intro", img:"" },
+          { key:"B", label:"처음으로", sub:"다시 시도", next:"intro", img:"" },
+        ],
+      },
+      bad2: {
+        id: "bad2",
+        title: "엔딩 — TMI 과다",
+        text: "상대 눈빛이 멀어졌다. ‘바쁘다’라는 말이 다가온다…",
+        choices: [
+          { key:"A", label:"처음으로", sub:"다시 가자", next:"intro", img:"" },
+          { key:"B", label:"처음으로", sub:"다시 가자", next:"intro", img:"" },
         ],
       },
     };
 
-    // 상태
-    const state = { cur: "start", history: [] };
+    // ===== 상태 =====
+    const state = { cur: "intro", history: [] };
 
-    // DOM
+    // ===== DOM =====
+    const startScreen = document.getElementById("startScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const startBtn = document.getElementById("startBtn");
+
     const sceneTitle = document.getElementById("sceneTitle");
     const sceneText = document.getElementById("sceneText");
     const choicesEl = document.getElementById("choices");
@@ -207,8 +356,21 @@
     function getChoiceImage(nodeId, choice){
       const over = localStorage.getItem(imgKey(nodeId, choice.key));
       if (over) return over;
-      if (choice.img) return choice.img;   // GitHub에 images/로 올린 정적 경로
+      if (choice.img) return choice.img;
       return "";
+    }
+
+    function showGame(){
+      startScreen.classList.add("hidden");
+      gameScreen.classList.remove("hidden");
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function showStart(){
+      gameScreen.classList.add("hidden");
+      startScreen.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function render(){
@@ -229,8 +391,6 @@
       hintEl.textContent = `노드 ID: ${node.id}`;
 
       choicesEl.innerHTML = "";
-
-      // 반드시 2지선다라고 가정
       node.choices.forEach((c, idx) => {
         const btn = document.createElement("button");
         btn.className = "choice";
@@ -280,6 +440,9 @@
       backBtn.disabled = state.history.length === 0;
     }
 
+    // ===== 이벤트 =====
+    startBtn.addEventListener("click", () => showGame());
+
     backBtn.addEventListener("click", () => {
       const prev = state.history.pop();
       if (!prev) return;
@@ -288,9 +451,10 @@
     });
 
     restartBtn.addEventListener("click", () => {
-      state.cur = "start";
+      // “처음”은 타이틀 화면으로 돌림
+      state.cur = "intro";
       state.history = [];
-      render();
+      showStart();
     });
 
     imgBtn.addEventListener("click", () => {
@@ -333,7 +497,8 @@
       render();
     });
 
-    render();
+    // 초기 화면은 startScreen(타이틀)로 유지
+    showStart();
   </script>
 </body>
 </html>
