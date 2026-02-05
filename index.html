@@ -35,6 +35,10 @@
       background: rgba(37,99,235,.35);
       border-color: rgba(37,99,235,.6);
     }
+    .btn.danger{
+      background: rgba(239,68,68,.22);
+      border-color: rgba(239,68,68,.55);
+    }
 
     .card{
       background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
@@ -45,35 +49,11 @@
     }
 
     /* ===== Start Screen ===== */
-    #startScreen{
-      min-height: calc(100vh - 36px);
-      display:flex;
-      align-items:center;
-    }
-    .start-card{
-      width: 100%;
-      padding: 22px;
-    }
-    .title{
-      margin:0;
-      font-size: 26px;
-      letter-spacing: .2px;
-      line-height: 1.15;
-    }
-    .subtitle{
-      margin: 10px 0 0;
-      font-size: 16px;
-      color: rgba(232,236,255,.92);
-      line-height: 1.5;
-      font-weight: 800;
-    }
-    .bullets{
-      margin: 14px 0 0;
-      padding: 0;
-      list-style: none;
-      display: grid;
-      gap: 10px;
-    }
+    #startScreen{ min-height: calc(100vh - 36px); display:flex; align-items:center; }
+    .start-card{ width: 100%; padding: 22px; }
+    .title{ margin:0; font-size: 26px; letter-spacing: .2px; line-height: 1.15; }
+    .subtitle{ margin: 10px 0 0; font-size: 16px; color: rgba(232,236,255,.92); line-height: 1.5; font-weight: 800; }
+    .bullets{ margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
     .bullet{
       border: 1px solid rgba(255,255,255,.12);
       background: rgba(0,0,0,.18);
@@ -86,9 +66,7 @@
     .muted{ color: var(--muted); }
 
     /* ===== Game Screen ===== */
-    header{
-      display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom: 12px;
-    }
+    header{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom: 12px; }
     h1.gameh1{ font-size: 16px; margin:0; color: rgba(232,236,255,.92); }
     .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end; }
 
@@ -141,6 +119,45 @@
       background: rgba(0,0,0,.18);
     }
 
+    /* ===== Narrative (typewriter-ish) ===== */
+    .narrative{
+      margin-top: 12px;
+      border-top: 1px solid rgba(255,255,255,.12);
+      padding-top: 12px;
+      display: grid;
+      gap: 10px;
+    }
+    .line{
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      border-radius: 14px;
+      line-height: 1.55;
+      font-size: 15px;
+      white-space: pre-wrap;
+    }
+    .line.small{ font-size: 14px; color: rgba(232,236,255,.92); opacity: .92; }
+    .line.muted{ color: var(--muted); }
+    .line.shake{
+      animation: shake .18s linear 4;
+      border-color: rgba(239,68,68,.45);
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-2px); }
+      50% { transform: translateX(2px); }
+      75% { transform: translateX(-2px); }
+      100% { transform: translateX(0); }
+    }
+
+    .actions{
+      margin-top: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .hidden{ display:none !important; }
+
     /* Dialog */
     dialog{
       border: 1px solid rgba(255,255,255,.18);
@@ -155,9 +172,6 @@
     label{ font-size: 13px; color: var(--muted); }
     input[type="file"]{ color: var(--muted); }
     .note{ font-size: 12px; color: var(--muted); margin-top: 8px; line-height:1.4; }
-
-    /* Hidden helper */
-    .hidden{ display:none !important; }
   </style>
 </head>
 <body>
@@ -171,13 +185,12 @@
 
         <ul class="bullets">
           <li class="bullet"><b>차인 이유 #1</b> — “좋은 사람인데… 그냥 <b>연애 감정이 안 생겨</b>.”</li>
-          <li class="bullet"><b>차인 이유 #2</b> — “너는 너무 <b>착</b>해서… 나랑은 안 맞아.” (착한 게 죄냐?)</li>
+          <li class="bullet"><b>차인 이유 #2</b> — “너는 너무 <b>착</b>해서… 나랑은 안 맞아.”</li>
           <li class="bullet"><b>차인 이유 #3</b> — “내가 요즘 바빠서…” (번역: <b>너 말고 다른 일정</b>이 우선)</li>
         </ul>
 
         <p class="muted" style="margin:14px 0 12px; line-height:1.45;">
-          선택 하나로 분위기 박살 or 호감도 상승. 말 한 마디로 엔딩이 갈림.<br/>
-          ※ 뒤로가기는 가능하지만, 인생은 보통 불가능함.
+          선택 하나로 분위기 박살 or 호감도 상승. 말 한 마디로 엔딩이 갈림.
         </p>
 
         <button class="btn primary" id="startBtn">연애 시뮬레이션 시작</button>
@@ -200,6 +213,12 @@
         <p class="scene-text" id="sceneText"></p>
 
         <div class="choices" id="choices"></div>
+
+        <!-- 선택 후 서술 영역 -->
+        <div class="narrative hidden" id="narrative"></div>
+
+        <!-- 다음단계/처음으로/종료 같은 액션 버튼 영역 -->
+        <div class="actions hidden" id="actions"></div>
 
         <div class="footer">
           <span class="pill" id="progress"></span>
@@ -227,7 +246,7 @@
           </div>
           <p class="note">
             업로드한 이미지는 localStorage에 저장되어 “이 브라우저에서만” 보임.
-            GitHub Pages에 영구 반영하려면 images 폴더에 파일을 올리고, 아래 STORY에서 img 경로 지정.
+            GitHub Pages에 영구 반영하려면 images 폴더에 파일을 올리고, STORY에서 img 경로 지정.
           </p>
         </form>
       </dialog>
@@ -236,123 +255,64 @@
 
   <script>
     /*
-      ====== 스토리 데이터(샘플) ======
-      나중에 네가 스토리 주면 여기만 갈아끼우면 됨.
-      규칙:
-      - 노드마다 choices 2개(A,B)
-      - next: 다음 노드 id
-      - img: (선택) 정적 경로("images/a.jpg")
+      ====== 현재 구현 범위 ======
+      - CHAPTER 1 (첫 질문) 2지선다
+      - A 선택: 서술 출력 + [다음 단계] 버튼 표시 (다음 단계는 아직 placeholder)
+      - B 선택: 서술 출력 + "첫인상은 되돌릴 수 없다" + 연애 실패 + [처음으로]/[게임 종료]
     */
+
     const STORY = {
-      intro: {
-        id: "intro",
-        title: "챕터 1 — 다시 시작",
-        text: "DM창을 켰다. 첫 문장 한 줄이 모든 걸 결정한다. 어떻게 보낼래?",
+      q1: {
+        id: "q1",
+        title: "CHAPTER 1 — 첫인상은 얼굴이 아니었다",
+        text:
+`약속 장소 앞.
+유리문 너머로 사람이 보인다.
+심장이 한 박자 빨라진다.
+
+오늘,
+Seri는 얼굴을 보지 않는 사람이었다.
+
+“어떤 얼굴로 다가갈 것인가?”`,
         choices: [
-          { key:"A", label:"가볍게 안부부터", sub:"무난하지만 존재감이 약할 수도", next:"coffee", img:"" },
-          { key:"B", label:"직진 플러팅", sub:"하이리스크 하이리턴", next:"risk", img:"" },
-        ],
-      },
-      coffee: {
-        id: "coffee",
-        title: "챕터 1 — 안전한 선택",
-        text: "상대가 답장을 했다. 이제 ‘만남’으로 연결해야 한다. 어떻게 던질래?",
-        choices: [
-          { key:"A", label:"카페 제안", sub:"짧고 부담 없는 만남", next:"date1", img:"" },
-          { key:"B", label:"전시/영화 제안", sub:"취향 맞으면 폭발, 아니면 폭망", next:"taste", img:"" },
-        ],
-      },
-      risk: {
-        id: "risk",
-        title: "챕터 1 — 직진의 대가",
-        text: "상대가 ‘ㅋㅋ’만 보냈다. 이 ‘ㅋㅋ’는 웃음일까 방어일까?",
-        choices: [
-          { key:"A", label:"바로 화제 전환", sub:"살짝 민망함 회피", next:"coffee", img:"" },
-          { key:"B", label:"농담으로 한 번 더", sub:"한 번 더 밀면 선 넘을 수도", next:"bad1", img:"" },
-        ],
-      },
-      date1: {
-        id: "date1",
-        title: "챕터 2 — 첫 만남",
-        text: "카페에서 마주 앉았다. 침묵이 2초 생겼다. 바로 던질 말은?",
-        choices: [
-          { key:"A", label:"상대 이야기 질문", sub:"관심 어필(안전)", next:"good1", img:"" },
-          { key:"B", label:"내 TMI 폭격", sub:"친해질 수도, 갑자기 멀어질 수도", next:"bad2", img:"" },
-        ],
-      },
-      taste: {
-        id: "taste",
-        title: "챕터 2 — 취향 승부",
-        text: "상대 취향을 맞췄다. 분위기 좋다. 여기서 ‘다음 약속’까지 뽑을까?",
-        choices: [
-          { key:"A", label:"다음 일정 바로 잡기", sub:"기세로 잡는다", next:"good2", img:"" },
-          { key:"B", label:"오늘은 여기까지만", sub:"여운 남기기", next:"good1", img:"" },
-        ],
-      },
-      good1: {
-        id: "good1",
-        title: "엔딩 후보 — 호감도 상승",
-        text: "대화가 자연스럽게 이어졌다. ‘좋은 사람인데’가 아닌 ‘좋은 사람’이 되기 시작했다.",
-        choices: [
-          { key:"A", label:"처음으로", sub:"다른 루트 보기", next:"intro", img:"" },
-          { key:"B", label:"처음으로", sub:"다른 루트 보기", next:"intro", img:"" },
-        ],
-      },
-      good2: {
-        id: "good2",
-        title: "엔딩 후보 — 다음 약속 확정",
-        text: "다음 약속까지 잡혔다. 이제 남은 건… 실수 안 하는 것.",
-        choices: [
-          { key:"A", label:"처음으로", sub:"다른 루트 보기", next:"intro", img:"" },
-          { key:"B", label:"처음으로", sub:"다른 루트 보기", next:"intro", img:"" },
-        ],
-      },
-      bad1: {
-        id: "bad1",
-        title: "엔딩 — 선 넘음",
-        text: "상대가 ‘아…’ 하더니 답이 끊겼다. 오늘은 여기까지다.",
-        choices: [
-          { key:"A", label:"처음으로", sub:"다시 시도", next:"intro", img:"" },
-          { key:"B", label:"처음으로", sub:"다시 시도", next:"intro", img:"" },
-        ],
-      },
-      bad2: {
-        id: "bad2",
-        title: "엔딩 — TMI 과다",
-        text: "상대 눈빛이 멀어졌다. ‘바쁘다’라는 말이 다가온다…",
-        choices: [
-          { key:"A", label:"처음으로", sub:"다시 가자", next:"intro", img:"" },
-          { key:"B", label:"처음으로", sub:"다시 가자", next:"intro", img:"" },
+          { key:"A", label:"안 씻은 얼굴로 들이댄다", sub:"날 것의 나로 승부한다", outcome:"q1A", img:"" },
+          { key:"B", label:"최대한 깔끔하게 얼굴을 보여준다", sub:"오늘은 풀파워다", outcome:"q1B", img:"" },
         ],
       },
     };
 
     // ===== 상태 =====
-    const state = { cur: "intro", history: [] };
+    const state = {
+      cur: "q1",
+      history: [],
+      pendingNext: null, // "다음 단계" 눌렀을 때 이동할 곳(지금은 placeholder)
+    };
 
     // ===== DOM =====
     const startScreen = document.getElementById("startScreen");
-    const gameScreen = document.getElementById("gameScreen");
-    const startBtn = document.getElementById("startBtn");
+    const gameScreen  = document.getElementById("gameScreen");
+    const startBtn    = document.getElementById("startBtn");
 
-    const sceneTitle = document.getElementById("sceneTitle");
-    const sceneText = document.getElementById("sceneText");
-    const choicesEl = document.getElementById("choices");
-    const progressEl = document.getElementById("progress");
-    const hintEl = document.getElementById("hint");
+    const sceneTitle  = document.getElementById("sceneTitle");
+    const sceneText   = document.getElementById("sceneText");
+    const choicesEl   = document.getElementById("choices");
+    const narrativeEl = document.getElementById("narrative");
+    const actionsEl   = document.getElementById("actions");
 
-    const backBtn = document.getElementById("backBtn");
-    const restartBtn = document.getElementById("restartBtn");
-    const imgBtn = document.getElementById("imgBtn");
-    const imgDlg = document.getElementById("imgDlg");
+    const progressEl  = document.getElementById("progress");
+    const hintEl      = document.getElementById("hint");
 
-    const fileA = document.getElementById("fileA");
-    const fileB = document.getElementById("fileB");
-    const clearImgs = document.getElementById("clearImgs");
+    const backBtn     = document.getElementById("backBtn");
+    const restartBtn  = document.getElementById("restartBtn");
+    const imgBtn      = document.getElementById("imgBtn");
+    const imgDlg      = document.getElementById("imgDlg");
 
-    // 장면별 선택지 이미지 override 저장키
+    const fileA       = document.getElementById("fileA");
+    const fileB       = document.getElementById("fileB");
+    const clearImgs   = document.getElementById("clearImgs");
+
+    // ===== 이미지 override(localStorage) =====
     function imgKey(nodeId, choiceKey){ return `img_override:${nodeId}:${choiceKey}`; }
-
     function getChoiceImage(nodeId, choice){
       const over = localStorage.getItem(imgKey(nodeId, choice.key));
       if (over) return over;
@@ -360,25 +320,120 @@
       return "";
     }
 
+    // ===== 화면 전환 =====
     function showGame(){
       startScreen.classList.add("hidden");
       gameScreen.classList.remove("hidden");
       render();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
-
     function showStart(){
       gameScreen.classList.add("hidden");
       startScreen.classList.remove("hidden");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    // ===== UI Helpers =====
+    function clearNarrative(){
+      narrativeEl.innerHTML = "";
+      narrativeEl.classList.add("hidden");
+      actionsEl.innerHTML = "";
+      actionsEl.classList.add("hidden");
+    }
+
+    function addLine(text, opts = {}){
+      const div = document.createElement("div");
+      div.className = "line";
+      if (opts.small) div.classList.add("small");
+      if (opts.muted) div.classList.add("muted");
+      if (opts.shake) div.classList.add("shake");
+      div.textContent = text;
+      narrativeEl.appendChild(div);
+      narrativeEl.classList.remove("hidden");
+      return div;
+    }
+
+    function addActionButton(label, onClick, opts = {}){
+      const b = document.createElement("button");
+      b.className = "btn";
+      if (opts.primary) b.classList.add("primary");
+      if (opts.danger) b.classList.add("danger");
+      b.type = "button";
+      b.textContent = label;
+      b.addEventListener("click", onClick);
+      actionsEl.appendChild(b);
+      actionsEl.classList.remove("hidden");
+      return b;
+    }
+
+    function setChoicesEnabled(enabled){
+      const btns = choicesEl.querySelectorAll("button.choice");
+      btns.forEach(b => b.disabled = !enabled);
+    }
+
+    // ===== Outcome 처리 =====
+    function playOutcome(outcomeId){
+      clearNarrative();
+      setChoicesEnabled(false);
+
+      if (outcomeId === "q1A"){
+        // A 루트 서술
+        addLine("그렇다.\nSeri는 아직\n내 얼굴을 보지 않았다.");
+        addLine("Seri가 나지막하게 말했다.", { muted: true });
+        addLine("“음… 저 오빠…”\n“오늘 그럴듯하게 생겼네.”", { small: true });
+        addLine("흐뭇.", { small: true });
+
+        // 다음 단계: 아직 2번째 질문이 없으므로 placeholder 안내
+        state.pendingNext = "placeholder";
+        addActionButton("다음 단계", () => {
+          // 나중에 q2 만들면 여기서 state.cur = "q2"; render(); 로 교체하면 됨
+          clearNarrative();
+          setChoicesEnabled(true);
+          addLine("다음 단계(placeholder)\n\n여기부터 2번째 질문을 붙이면 됨.", { muted: true });
+          addActionButton("처음으로", () => {
+            state.cur = "q1";
+            state.history = [];
+            render();
+          });
+        }, { primary: true });
+
+      } else if (outcomeId === "q1B"){
+        // B 루트: 연애 실패 엔딩
+        addLine("Seri:\n“으아아아아아—!!”", { shake: true });
+        addLine("“내 안에 있던 흑염룡이—”\n“너무 말끔한 외모로—”\n“더 들쳐져 버려이이잇…!!”", { shake: true });
+        addLine("……", { muted: true });
+        addLine("이래서\n첫인상은 되돌릴 수 없다.");
+
+        addLine("연애 실패", { shake: true });
+        addLine("너무 많은 것이\n너무 빨리 보였다.", { muted: true });
+
+        addActionButton("처음으로", () => {
+          state.cur = "q1";
+          state.history = [];
+          render();
+        }, { primary: true });
+
+        addActionButton("게임 종료", () => {
+          showStart();
+        }, { danger: true });
+      } else {
+        addLine("알 수 없는 outcome 입니다. 데이터를 확인하세요.", { muted: true });
+        addActionButton("처음으로", () => {
+          state.cur = "q1";
+          state.history = [];
+          render();
+        });
+      }
+    }
+
+    // ===== 렌더 =====
     function render(){
       const node = STORY[state.cur];
-      if (!node) {
+      if (!node){
         sceneTitle.textContent = "데이터 오류";
-        sceneText.textContent = "존재하지 않는 노드로 이동했습니다. next 값을 확인하세요.";
+        sceneText.textContent = "존재하지 않는 노드입니다.";
         choicesEl.innerHTML = "";
+        clearNarrative();
         progressEl.textContent = `진행: ${state.history.length} step`;
         hintEl.textContent = `현재: ${state.cur}`;
         return;
@@ -390,6 +445,8 @@
       progressEl.textContent = `진행: ${state.history.length} step`;
       hintEl.textContent = `노드 ID: ${node.id}`;
 
+      clearNarrative();
+
       choicesEl.innerHTML = "";
       node.choices.forEach((c, idx) => {
         const btn = document.createElement("button");
@@ -398,9 +455,8 @@
 
         const imgWrap = document.createElement("div");
         imgWrap.className = "img";
-
         const src = getChoiceImage(node.id, c);
-        if (src) {
+        if (src){
           const img = document.createElement("img");
           img.src = src;
           img.alt = c.label;
@@ -428,9 +484,9 @@
         btn.appendChild(body);
 
         btn.addEventListener("click", () => {
+          // 이번 버전은 "다음 노드 이동" 대신 "outcome 플레이"
           state.history.push(state.cur);
-          state.cur = c.next;
-          render();
+          playOutcome(c.outcome);
           window.scrollTo({ top: 0, behavior: "smooth" });
         });
 
@@ -438,6 +494,7 @@
       });
 
       backBtn.disabled = state.history.length === 0;
+      setChoicesEnabled(true);
     }
 
     // ===== 이벤트 =====
@@ -450,9 +507,9 @@
       render();
     });
 
+    // “처음” 버튼: 타이틀 화면으로
     restartBtn.addEventListener("click", () => {
-      // “처음”은 타이틀 화면으로 돌림
-      state.cur = "intro";
+      state.cur = "q1";
       state.history = [];
       showStart();
     });
@@ -473,31 +530,32 @@
     }
 
     fileA.addEventListener("change", async () => {
-      const nodeId = state.cur;
+      const node = STORY[state.cur];
       const f = fileA.files?.[0];
-      if (!f) return;
+      if (!f || !node) return;
       const data = await fileToDataURL(f);
-      localStorage.setItem(imgKey(nodeId, "A"), data);
+      localStorage.setItem(imgKey(node.id, "A"), data);
       render();
     });
 
     fileB.addEventListener("change", async () => {
-      const nodeId = state.cur;
+      const node = STORY[state.cur];
       const f = fileB.files?.[0];
-      if (!f) return;
+      if (!f || !node) return;
       const data = await fileToDataURL(f);
-      localStorage.setItem(imgKey(nodeId, "B"), data);
+      localStorage.setItem(imgKey(node.id, "B"), data);
       render();
     });
 
     clearImgs.addEventListener("click", () => {
-      const nodeId = state.cur;
-      localStorage.removeItem(imgKey(nodeId, "A"));
-      localStorage.removeItem(imgKey(nodeId, "B"));
+      const node = STORY[state.cur];
+      if (!node) return;
+      localStorage.removeItem(imgKey(node.id, "A"));
+      localStorage.removeItem(imgKey(node.id, "B"));
       render();
     });
 
-    // 초기 화면은 startScreen(타이틀)로 유지
+    // 초기: 타이틀
     showStart();
   </script>
 </body>
