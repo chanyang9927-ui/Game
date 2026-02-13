@@ -3,481 +3,420 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>웹 윷놀이 (프로토타입)</title>
+<title>주의뜻 성암교회 윷놀이</title>
 <style>
-  :root { --bg:#0b1020; --panel:#121a33; --text:#e9eeff; --muted:#9aa6c7; --line:#2a335a; }
-  * { box-sizing:border-box; }
+  :root{
+    --bg:#070a14;
+    --panel: rgba(255,255,255,.06);
+    --line: rgba(255,255,255,.12);
+    --text: #eaf0ff;
+    --muted:#9aa7c7;
+  }
+  *{ box-sizing:border-box; }
   body{
     margin:0; padding:16px;
-    background: radial-gradient(1200px 800px at 20% 0%, #1b2a63 0%, var(--bg) 55%);
-    color:var(--text);
+    background: radial-gradient(1200px 800px at 20% 0%, #1b2a63 0%, var(--bg) 60%);
+    color: var(--text);
     font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif;
   }
-  .wrap{ max-width:1100px; margin:0 auto; display:grid; gap:12px; grid-template-columns: 1fr 320px; }
-  @media (max-width: 980px){ .wrap{ grid-template-columns:1fr; } }
+  .wrap{
+    max-width: 1200px;
+    margin: 0 auto;
+    display:grid;
+    grid-template-columns: 1fr 320px;
+    gap: 12px;
+  }
+  @media (max-width: 980px){
+    .wrap{ grid-template-columns: 1fr; }
+  }
+
   .board{
     background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-    border:1px solid rgba(255,255,255,.10);
-    border-radius:16px; padding:12px;
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    overflow:hidden;
   }
+  .boardStage{
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2048 / 1152; /* 제공 이미지 비율 */
+    background: #000;
+  }
+  .boardStage img{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit: cover;
+    user-select:none;
+    -webkit-user-drag:none;
+  }
+  svg{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+  }
+
   .side{
-    background: rgba(255,255,255,.04);
-    border:1px solid rgba(255,255,255,.10);
-    border-radius:16px; padding:12px;
+    background: var(--panel);
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    padding: 12px;
   }
-  h1{ font-size:18px; margin:0 0 10px; }
+  h1{ margin:0 0 10px; font-size:16px; }
   .row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-  button{
-    background:#2a3cff; color:white; border:0;
-    padding:10px 12px; border-radius:10px; cursor:pointer;
-    font-weight:650;
-  }
-  button:disabled{ opacity:.45; cursor:not-allowed; }
-  .ghost{
-    background: transparent; color: var(--text);
-    border:1px solid rgba(255,255,255,.18);
-  }
   .pill{
-    padding:6px 10px; border-radius:999px;
-    border:1px solid rgba(255,255,255,.16);
-    color:var(--muted); font-size:12px;
+    padding:6px 10px;
+    border-radius:999px;
+    border: 1px solid rgba(255,255,255,.16);
+    color: var(--muted);
+    font-size: 12px;
   }
-  .log{
-    margin-top:10px; padding:10px; border-radius:12px;
-    background: rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.10);
-    height: 260px; overflow:auto; font-size:13px; line-height:1.35;
+  button{
+    background:#2a3cff;
+    color:#fff;
+    border:0;
+    padding:10px 12px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:700;
   }
-  .hint{ color: var(--muted); font-size:12px; margin-top:8px; }
-  /* SVG styles */
-  svg{ width:100%; height:auto; display:block; }
-  .node{ fill: rgba(255,255,255,.06); stroke: rgba(255,255,255,.25); stroke-width:2; }
-  .node.start{ stroke: rgba(255,255,255,.55); }
-  .node.hot{ fill: rgba(42,60,255,.20); stroke: rgba(42,60,255,.85); }
-  .label{ fill: rgba(255,255,255,.75); font-size:12px; user-select:none; }
-  .edge{ stroke: rgba(255,255,255,.22); stroke-width:4; stroke-linecap:round; }
-  .piece{ cursor:pointer; }
-  .piece text{ font-size:12px; fill:#fff; font-weight:800; user-select:none; pointer-events:none; }
-  .piece circle{ stroke: rgba(255,255,255,.85); stroke-width:2; }
-  .piece.p0 circle{ fill:#ff4d6d; }
-  .piece.p1 circle{ fill:#4dd4ff; }
-  .selected circle{ stroke-width:4; }
+  button.ghost{
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.18);
+    color: var(--text);
+  }
+
+  .hint{
+    margin-top:10px;
+    color: var(--muted);
+    font-size:12px;
+    line-height:1.35;
+  }
+
+  /* SVG */
+  .nodeHit{
+    fill: rgba(255,255,255,0.001); /* 클릭 히트영역(투명) */
+    cursor: pointer;
+  }
+  .nodeVis{
+    fill: rgba(255,255,255,.06);
+    stroke: rgba(255,255,255,.25);
+    stroke-width: 2;
+  }
+
+  .piece circle{ stroke: rgba(255,255,255,.9); stroke-width:2; }
+  .piece text{ fill:#fff; font-weight:900; font-size:16px; user-select:none; pointer-events:none; }
+  .pRed circle{ fill:#ff4d6d; }
+  .pBlue circle{ fill:#4dd4ff; }
+  .selected circle{ stroke-width: 4; }
 </style>
 </head>
 <body>
   <div class="wrap">
     <div class="board">
-      <h1>웹 윷놀이 (프로토타입)</h1>
-      <svg id="svg" viewBox="0 0 640 640" aria-label="윷놀이 판"></svg>
-      <div class="hint">
-        사용법: ① 윷 던지기 → ② 움직일 말 클릭 → ③ (분기 선택이 뜨면) 선택 버튼 클릭.
+      <div class="boardStage" id="stage">
+        <img id="boardImg" alt="윷판" />
+        <svg id="svg" viewBox="0 0 2048 1152" aria-label="말 이동 오버레이"></svg>
       </div>
     </div>
 
     <div class="side">
+      <h1>말 이동 컨트롤</h1>
+
       <div class="row">
-        <span class="pill" id="turnPill">턴: -</span>
-        <span class="pill" id="statePill">상태: -</span>
-      </div>
-      <div style="height:10px"></div>
-      <div class="row">
-        <button id="throwBtn">윷 던지기</button>
-        <button id="endBtn" class="ghost">턴 종료</button>
-      </div>
-      <div style="height:10px"></div>
-      <div class="row">
-        <span class="pill" id="throwPill">결과: -</span>
-        <span class="pill" id="extraPill">추가턴: -</span>
-      </div>
-      <div style="height:10px"></div>
-      <div class="row" id="branchRow" style="display:none">
-        <button id="branchOuter" class="ghost">바깥길</button>
-        <button id="branchDiag" class="ghost">지름길</button>
+        <span class="pill" id="selPill">선택: 없음</span>
+        <span class="pill" id="modePill">모드: 노드 클릭 이동</span>
       </div>
 
-      <div class="log" id="log"></div>
+      <div style="height:10px"></div>
+
+      <div class="row">
+        <button class="ghost" id="toggleNodesBtn">노드 표시: ON</button>
+        <button class="ghost" id="resetBtn">리셋</button>
+      </div>
+
       <div class="hint">
-        구현됨: 이동/잡기(상대 원점)/윷·모 추가턴/지름길 분기(간단)<br/>
-        미구현: 업기(말 합치기), 더 정교한 분기 규칙, AI/온라인 멀티
+        1) 말을 클릭해서 선택<br/>
+        2) 보드의 원(노드)을 클릭하면 그 위치로 <b>부드럽게</b> 이동<br/><br/>
+        ※ 윷 던지기는 오프라인으로 직접 하고, 여기서는 결과만 반영해서 이동시키면 됨.
       </div>
     </div>
   </div>
 
 <script>
 /**
- * 노드/경로 모델
- * - index 0 = 출발(시작/대기)
- * - index 1..20 = 외곽 경로 (출발 다음 칸부터 한 바퀴)
- * - index 21..25 = 대각(좌상→중앙→우하) 일부
- * - index 26..28 = 대각(우상→중앙→좌하) 일부
- *
- * 이 프로토타입은 "표준 판의 완전한 29점 그래프"를 최대한 단순화한 형태로,
- * 분기 가능한 지점(모서리/대각 시작점)에서 선택 UI를 띄운다.
+ * ✅ 이미지 경로만 바꾸면 됨
+ * - 같은 폴더에 board.png로 두면 그대로 동작
  */
+const BOARD_SRC = "board.png";
 
-// 좌표(보기 좋게 배치)
-const P = (x,y)=>({x,y});
-
-// 바깥 5x5 그리드 코너/중간점 느낌으로 20개 배치
-// 레이아웃은 '십자형' 느낌: 외곽 + 중앙 + 대각
-const nodePos = [
-  P(80,560), // 0 START (좌하)
-  P(160,560),P(240,560),P(320,560),P(400,560), // 1-4 bottom
-  P(480,560), // 5 (우하 모서리)
-  P(480,480),P(480,400),P(480,320),P(480,240), // 6-9 right
-  P(480,160), // 10 (우상 모서리)
-  P(400,160),P(320,160),P(240,160),P(160,160), // 11-14 top
-  P(80,160), // 15 (좌상 모서리)
-  P(80,240),P(80,320),P(80,400),P(80,480), // 16-19 left
-  P(80,560), // 20 (출발 복귀=도착 취급용 포인트로 외곽상 동일좌표)
-  // 대각 1: 좌상(15) -> 중앙 -> 우하(5)
-  P(160,240),P(240,320),P(320,400),P(400,480),P(320,320), // 21-25 (25=중앙)
-  // 대각 2: 우상(10) -> 중앙 -> 좌하(0)
-  P(400,240),P(320,320),P(240,400) // 26-28 (27=중앙(공유))
+/**
+ * ✅ 업로드해준 보드 이미지에서 자동 검출한 "원(노드) 중심 좌표" 29개 (정규화)
+ * - 반응형을 위해 0~1 비율로 저장해두고 viewBox(2048x1152)로 환산
+ * - 노드는 '클릭 히트영역' 용도라 번호/이름이 필요 없음
+ */
+const NODES_NORM = [
+  [0.27832, 0.087674],[0.562988, 0.08941],[0.710449, 0.08941],[0.13623, 0.092014],[0.424316, 0.092014],
+  [0.852539, 0.092014],[0.971191, 0.100694],[0.210938, 0.188368],[0.852539, 0.216146],[0.063477, 0.251736],
+  [0.535645, 0.264757],[0.789551, 0.317708],[0.063477, 0.368056],[0.789551, 0.393229],[0.063477, 0.485243],
+  [0.13623, 0.544271],[0.789551, 0.576389],[0.210938, 0.642361],[0.535645, 0.645833],[0.063477, 0.66059],
+  [0.854004, 0.592014],[0.709961, 0.672743],[0.535645, 0.728299],[0.354004, 0.761285],[0.789551, 0.761285],
+  [0.209961, 0.784722],[0.063477, 0.784722],[0.535645, 0.822917],[0.852051, 0.722222]
 ];
 
-// 노드 이름(표시용)
-const nodeName = (i)=>{
-  if(i===0) return "START";
-  if(i===20) return "GOAL";
-  if(i===25 || i===27) return "센터";
-  return String(i);
-};
+const VIEW_W = 2048, VIEW_H = 1152;
+const toView = ([nx, ny]) => ({ x: nx * VIEW_W, y: ny * VIEW_H });
 
-// 기본 다음 노드(외곽 1..20)
-const nextOuter = new Map();
-for(let i=0;i<=19;i++){
-  // 0->1, 1->2 ... 19->20
-  nextOuter.set(i, i+1);
-}
-nextOuter.set(20, 20); // 도착 정지
+const svg = document.getElementById("svg");
+const imgEl = document.getElementById("boardImg");
+imgEl.src = BOARD_SRC;
 
-// 지름길(nextDiag) - 단순 모델
-// 모서리에서 대각 진입을 허용하는 "선택형 분기"로 처리
-const nextDiag = new Map();
-// 좌상(15)에서 대각(21)로
-nextDiag.set(15, 21);
-nextDiag.set(21, 22);
-nextDiag.set(22, 25); // 중앙
-nextDiag.set(25, 23); // 중앙에서 우하 방향으로 나간다고 가정(단순)
-nextDiag.set(23, 24);
-nextDiag.set(24, 5);  // 우하 모서리
+let showNodes = true;
 
-// 우상(10)에서 대각(26)로
-nextDiag.set(10, 26);
-nextDiag.set(26, 27); // 중앙(공유)
-nextDiag.set(27, 28);
-nextDiag.set(28, 0);  // 좌하(출발)로
-
-// "분기 가능한 지점" 정의
-// - 15(좌상), 10(우상)에서 대각 진입 선택
-const branchPoints = new Set([15,10]);
-
-// --- 게임 상태 ---
-const players = [
-  { name:"P1(빨강)", cls:"p0" },
-  { name:"P2(파랑)", cls:"p1" }
-];
-
+// 말(팀당 3개: 이미지 분위기와 동일)
 const pieces = [
-  // 각 말: {p:playerIndex, id:0..3, pos:0(start), finished:false}
-  ...Array.from({length:4}, (_,id)=>({p:0,id,pos:0,finished:false})),
-  ...Array.from({length:4}, (_,id)=>({p:1,id,pos:0,finished:false}))
+  { team:"red", label:"R1", node: 28 }, // 우하 START 근처(이미지의 START 원)
+  { team:"red", label:"R2", node: 28 },
+  { team:"red", label:"R3", node: 28 },
+
+  { team:"blue", label:"B1", node: 28 },
+  { team:"blue", label:"B2", node: 28 },
+  { team:"blue", label:"B3", node: 28 }
 ];
 
-let turn = 0;
-let pendingMove = null; // {steps, label, extraTurn:boolean}
-let selectedPieceKey = null; // "p-id"
-let awaitingBranch = null; // {pieceIndex, stepsRemaining, fromNode}
+let selectedPieceIndex = null;
+let animating = false;
 
-const $ = (id)=>document.getElementById(id);
-const logEl = $("log");
-function log(msg){
-  const t = new Date().toLocaleTimeString("ko-KR",{hour12:false});
-  logEl.insertAdjacentHTML("beforeend", `<div><span style="color:#9aa6c7">[${t}]</span> ${msg}</div>`);
-  logEl.scrollTop = logEl.scrollHeight;
+const selPill = document.getElementById("selPill");
+const toggleNodesBtn = document.getElementById("toggleNodesBtn");
+const resetBtn = document.getElementById("resetBtn");
+
+function easeInOutCubic(t){
+  return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
 }
 
-function pieceKey(pc){ return `${pc.p}-${pc.id}`; }
-function isOwnPiece(pc){ return pc.p===turn; }
-
-function updateUI(){
-  $("turnPill").textContent = `턴: ${players[turn].name}`;
-  $("statePill").textContent = pendingMove ? `상태: 말 선택` : `상태: 던지기`;
-  $("throwPill").textContent = `결과: ${pendingMove ? pendingMove.label : "-"}`;
-  $("extraPill").textContent = `추가턴: ${pendingMove ? (pendingMove.extraTurn ? "예" : "아니오") : "-"}`;
-
-  $("throwBtn").disabled = !!pendingMove || !!awaitingBranch;
-  $("endBtn").disabled = !!pendingMove || !!awaitingBranch; // 이동 전에는 종료 금지
-
-  // 분기 UI
-  $("branchRow").style.display = awaitingBranch ? "flex" : "none";
-}
-
-function endTurn(){
-  pendingMove = null;
-  selectedPieceKey = null;
-  awaitingBranch = null;
-  turn = (turn+1)%2;
-  updateUI();
-  render();
-}
-
-function randThrow(){
-  // 간단 확률 모델(실제 윷 확률과 다를 수 있음)
-  // 1~5 균등으로 두고, 필요하면 실확률로 바꿀 수 있음
-  const v = 1 + Math.floor(Math.random()*5);
-  const map = {1:"도(1)",2:"개(2)",3:"걸(3)",4:"윷(4)",5:"모(5)"};
-  return {steps:v,label:map[v], extraTurn: (v>=4)};
-}
-
-function clampToGoal(pos){
-  // 외곽에서 20이 도착, 그 이후는 정지
-  return pos>20 ? 20 : pos;
-}
-
-function moveOneStep(from, mode){
-  // mode: "outer" or "diag"
-  if(from===20) return 20;
-  if(mode==="diag" && nextDiag.has(from)) return nextDiag.get(from);
-  return nextOuter.get(from);
-}
-
-function resolveCapture(movedPieceIndex){
-  const m = pieces[movedPieceIndex];
-  if(m.finished) return;
-  // 같은 칸(0 제외)에서 상대 말이 있으면 잡기 -> 상대 말 START로
-  const targetPos = m.pos;
-  if(targetPos===0 || targetPos===20) return;
-
-  let captured = 0;
-  for(let i=0;i<pieces.length;i++){
-    if(i===movedPieceIndex) continue;
-    const o = pieces[i];
-    if(o.finished) continue;
-    if(o.pos===targetPos && o.p!==m.p){
-      o.pos = 0;
-      o.finished = false;
-      captured++;
-    }
-  }
-  if(captured>0){
-    log(`${players[m.p].name}가 ${captured}개 말 잡음 → 추가턴 부여`);
-    // 잡으면 추가턴 (일반 룰 반영)
-    pendingMove.extraTurn = true;
-  }
-}
-
-function applyMove(pieceIndex, steps, mode){
-  const pc = pieces[pieceIndex];
-  if(pc.finished) return;
-
-  let pos = pc.pos;
-  for(let s=0;s<steps;s++){
-    pos = moveOneStep(pos, mode);
-    if(pos===20){ break; }
-  }
-  pc.pos = pos;
-  if(pos===20) pc.finished = true;
-
-  resolveCapture(pieceIndex);
-}
-
-function onPieceClick(pieceIndex){
-  const pc = pieces[pieceIndex];
-  if(!pendingMove || awaitingBranch) return;
-  if(!isOwnPiece(pc)) return;
-  if(pc.finished) return;
-
-  selectedPieceKey = pieceKey(pc);
-
-  // 분기 체크: 현재 위치가 분기점이고, 대각 진입이 가능하면 선택 띄우기
-  if(branchPoints.has(pc.pos) && nextDiag.has(pc.pos)){
-    awaitingBranch = { pieceIndex, steps: pendingMove.steps, from: pc.pos };
-    log(`분기 선택: ${players[turn].name} 말(${pc.id+1}) @${pc.pos} → 바깥길/지름길`);
-    updateUI();
-    render();
-    return;
-  }
-
-  // 분기 없음: 외곽 기본 이동
-  const steps = pendingMove.steps;
-  log(`${players[turn].name} 말(${pc.id+1}) ${pendingMove.label} 이동(바깥길)`);
-  applyMove(pieceIndex, steps, "outer");
-
-  // 이동 처리 후 턴 정리
-  const extra = pendingMove.extraTurn;
-  pendingMove = null;
-  selectedPieceKey = null;
-
-  if(extra){
-    log(`추가턴`);
-    // 턴 유지
+function setSelected(i){
+  selectedPieceIndex = i;
+  if(i === null){
+    selPill.textContent = "선택: 없음";
   }else{
-    turn = (turn+1)%2;
+    selPill.textContent = `선택: ${pieces[i].label}`;
   }
-
-  // 승리 체크
-  if(checkWin()){
-    alert(`${players[turn].name} 승리! (프로토타입)`);
-  }
-
-  updateUI();
   render();
 }
 
-function chooseBranch(mode){
-  if(!awaitingBranch || !pendingMove) return;
-  const {pieceIndex, steps} = awaitingBranch;
-  const pc = pieces[pieceIndex];
-  log(`${players[turn].name} 말(${pc.id+1}) ${pendingMove.label} 이동(${mode==="diag" ? "지름길" : "바깥길"})`);
-  applyMove(pieceIndex, steps, mode);
-
-  const extra = pendingMove.extraTurn;
-  pendingMove = null;
-  selectedPieceKey = null;
-  awaitingBranch = null;
-
-  if(extra){
-    log(`추가턴`);
-  }else{
-    turn = (turn+1)%2;
-  }
-
-  if(checkWin()){
-    alert(`${players[(turn+1)%2].name} 승리! (프로토타입)`);
-  }
-
-  updateUI();
-  render();
+function reset(){
+  // 전부 START(28)로 복귀
+  for(const p of pieces) p.node = 28;
+  setSelected(null);
 }
 
-function checkWin(){
-  // 한 플레이어 말 4개가 모두 finished면 승리
-  for(let p=0;p<2;p++){
-    const all = pieces.filter(x=>x.p===p).every(x=>x.finished);
-    if(all) return true;
-  }
-  return false;
-}
-
-// --- 렌더링(SVG) ---
-function render(){
-  const svg = $("svg");
+function draw(){
   svg.innerHTML = "";
 
-  // edges (외곽)
-  for(let i=0;i<=19;i++){
-    drawEdge(svg, nodePos[i], nodePos[i+1]);
-  }
-  // 대각선 시각화
-  const diagEdges = [
-    [15,21],[21,22],[22,25],[25,23],[23,24],[24,5],
-    [10,26],[26,27],[27,28],[28,0]
-  ];
-  for(const [a,b] of diagEdges){
-    drawEdge(svg, nodePos[a], nodePos[b], true);
-  }
+  // 1) 노드(표시 ON일 때만 시각화)
+  NODES_NORM.forEach((n, idx) => {
+    const {x,y} = toView(n);
 
-  // nodes
-  for(let i=0;i<nodePos.length;i++){
-    const pos = nodePos[i];
-    const hot = branchPoints.has(i);
-    const isStart = (i===0);
-    drawNode(svg, pos, i, {hot, isStart});
-  }
+    if(showNodes){
+      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      c.setAttribute("cx", x);
+      c.setAttribute("cy", y);
+      c.setAttribute("r", 28);
+      c.setAttribute("class", "nodeVis");
+      svg.appendChild(c);
+    }
 
-  // pieces
-  for(let i=0;i<pieces.length;i++){
-    const pc = pieces[i];
-    const base = nodePos[pc.pos];
-    // 같은 칸 겹침 방지용 오프셋(간단)
-    const same = pieces.filter(x=>x.pos===pc.pos && !x.finished);
-    const idx = same.findIndex(x=>x===pc);
-    const angle = (idx / Math.max(1,same.length)) * Math.PI * 2;
-    const r = same.length>1 ? 14 : 0;
-    const x = base.x + Math.cos(angle)*r;
-    const y = base.y + Math.sin(angle)*r;
+    // 클릭 히트영역(항상)
+    const hit = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    hit.setAttribute("cx", x);
+    hit.setAttribute("cy", y);
+    hit.setAttribute("r", 38);
+    hit.setAttribute("class", "nodeHit");
+    hit.addEventListener("click", () => onNodeClick(idx));
+    svg.appendChild(hit);
+  });
 
-    drawPiece(svg, x, y, pc, i);
-  }
+  // 2) 말 렌더
+  // 같은 노드에 여러 말이 있을 때 살짝 퍼지게(겹침 방지)
+  const groups = new Map(); // node -> piece indices
+  pieces.forEach((p, i) => {
+    const arr = groups.get(p.node) ?? [];
+    arr.push(i);
+    groups.set(p.node, arr);
+  });
+
+  pieces.forEach((p, i) => {
+    const base = toView(NODES_NORM[p.node]);
+    const same = groups.get(p.node);
+    const k = same.indexOf(i);
+    const m = same.length;
+
+    const angle = (m === 1) ? 0 : (k / m) * Math.PI * 2;
+    const rr = (m === 1) ? 0 : 22;
+    const px = base.x + Math.cos(angle) * rr;
+    const py = base.y + Math.sin(angle) * rr;
+
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    const cls = [
+      "piece",
+      p.team === "red" ? "pRed" : "pBlue",
+      (selectedPieceIndex === i) ? "selected" : ""
+    ].join(" ");
+    g.setAttribute("class", cls);
+    g.style.cursor = animating ? "not-allowed" : "pointer";
+    g.addEventListener("click", () => {
+      if(animating) return;
+      setSelected(i);
+    });
+
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("cx", px);
+    c.setAttribute("cy", py);
+    c.setAttribute("r", 20);
+
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", px);
+    t.setAttribute("y", py + 6);
+    t.setAttribute("text-anchor", "middle");
+    t.textContent = p.label;
+
+    g.appendChild(c);
+    g.appendChild(t);
+    svg.appendChild(g);
+  });
 }
 
-function drawEdge(svg, a, b, diag=false){
-  const e = document.createElementNS("http://www.w3.org/2000/svg","line");
-  e.setAttribute("x1", a.x); e.setAttribute("y1", a.y);
-  e.setAttribute("x2", b.x); e.setAttribute("y2", b.y);
-  e.setAttribute("class", "edge");
-  if(diag){
-    e.setAttribute("stroke-dasharray","8 10");
+function render(){ draw(); }
+
+function onNodeClick(targetNode){
+  if(animating) return;
+  if(selectedPieceIndex === null) return;
+
+  const p = pieces[selectedPieceIndex];
+  if(p.node === targetNode) return;
+
+  animateMove(selectedPieceIndex, targetNode, 520);
+}
+
+function animateMove(pieceIndex, targetNode, durationMs){
+  animating = true;
+
+  const p = pieces[pieceIndex];
+  const from = toView(NODES_NORM[p.node]);
+  const to = toView(NODES_NORM[targetNode]);
+
+  const start = performance.now();
+  const temp = { x: from.x, y: from.y };
+
+  function frame(now){
+    const t = Math.min(1, (now - start) / durationMs);
+    const e = easeInOutCubic(t);
+
+    temp.x = from.x + (to.x - from.x) * e;
+    temp.y = from.y + (to.y - from.y) * e;
+
+    // 임시 렌더: 말 위치만 임시로 그리기 위해 node를 바꾸지 않고 직접 그리는 방식
+    // -> 간단하게: 현재 SVG를 재구성하되 해당 말만 임시 좌표로 덮어쓰기
+    svg.innerHTML = "";
+
+    // 노드
+    NODES_NORM.forEach((n, idx) => {
+      const {x,y} = toView(n);
+      if(showNodes){
+        const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        c.setAttribute("cx", x);
+        c.setAttribute("cy", y);
+        c.setAttribute("r", 28);
+        c.setAttribute("class", "nodeVis");
+        svg.appendChild(c);
+      }
+      const hit = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      hit.setAttribute("cx", x);
+      hit.setAttribute("cy", y);
+      hit.setAttribute("r", 38);
+      hit.setAttribute("class", "nodeHit");
+      hit.addEventListener("click", () => onNodeClick(idx));
+      svg.appendChild(hit);
+    });
+
+    // 겹침 방지용 그룹 계산(임시 이동 중인 말은 "가상 노드"로 취급)
+    const groups = new Map();
+    pieces.forEach((pp, ii) => {
+      const key = (ii === pieceIndex) ? "__moving__" : pp.node;
+      const arr = groups.get(key) ?? [];
+      arr.push(ii);
+      groups.set(key, arr);
+    });
+
+    pieces.forEach((pp, ii) => {
+      let px, py;
+
+      if(ii === pieceIndex){
+        const same = groups.get("__moving__");
+        const k = same.indexOf(ii);
+        const m = same.length;
+        const angle = (m === 1) ? 0 : (k / m) * Math.PI * 2;
+        const rr = (m === 1) ? 0 : 22;
+        px = temp.x + Math.cos(angle) * rr;
+        py = temp.y + Math.sin(angle) * rr;
+      }else{
+        const base = toView(NODES_NORM[pp.node]);
+        const same = groups.get(pp.node);
+        const k = same.indexOf(ii);
+        const m = same.length;
+        const angle = (m === 1) ? 0 : (k / m) * Math.PI * 2;
+        const rr = (m === 1) ? 0 : 22;
+        px = base.x + Math.cos(angle) * rr;
+        py = base.y + Math.sin(angle) * rr;
+      }
+
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      const cls = [
+        "piece",
+        pp.team === "red" ? "pRed" : "pBlue",
+        (selectedPieceIndex === ii) ? "selected" : ""
+      ].join(" ");
+      g.setAttribute("class", cls);
+      g.style.cursor = "not-allowed";
+
+      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      c.setAttribute("cx", px);
+      c.setAttribute("cy", py);
+      c.setAttribute("r", 20);
+
+      const tt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      tt.setAttribute("x", px);
+      tt.setAttribute("y", py + 6);
+      tt.setAttribute("text-anchor", "middle");
+      tt.textContent = pp.label;
+
+      g.appendChild(c);
+      g.appendChild(tt);
+      svg.appendChild(g);
+    });
+
+    if(t < 1){
+      requestAnimationFrame(frame);
+    }else{
+      // 종료: 실제 위치 반영
+      p.node = targetNode;
+      animating = false;
+      render();
+    }
   }
-  svg.appendChild(e);
+
+  requestAnimationFrame(frame);
 }
 
-function drawNode(svg, pos, idx, opts){
-  const g = document.createElementNS("http://www.w3.org/2000/svg","g");
-
-  const c = document.createElementNS("http://www.w3.org/2000/svg","circle");
-  c.setAttribute("cx", pos.x);
-  c.setAttribute("cy", pos.y);
-  c.setAttribute("r", 18);
-  c.setAttribute("class", `node ${opts.isStart ? "start" : ""} ${opts.hot ? "hot" : ""}`);
-  g.appendChild(c);
-
-  const t = document.createElementNS("http://www.w3.org/2000/svg","text");
-  t.setAttribute("x", pos.x);
-  t.setAttribute("y", pos.y + 4);
-  t.setAttribute("text-anchor","middle");
-  t.setAttribute("class","label");
-  t.textContent = nodeName(idx);
-  g.appendChild(t);
-
-  svg.appendChild(g);
-}
-
-function drawPiece(svg, x, y, pc, pieceIndex){
-  const g = document.createElementNS("http://www.w3.org/2000/svg","g");
-  g.setAttribute("class", `piece ${players[pc.p].cls} ${selectedPieceKey===pieceKey(pc) ? "selected" : ""}`);
-  g.addEventListener("click", ()=>onPieceClick(pieceIndex));
-
-  const c = document.createElementNS("http://www.w3.org/2000/svg","circle");
-  c.setAttribute("cx", x); c.setAttribute("cy", y);
-  c.setAttribute("r", 14);
-  g.appendChild(c);
-
-  const t = document.createElementNS("http://www.w3.org/2000/svg","text");
-  t.setAttribute("x", x);
-  t.setAttribute("y", y+4);
-  t.setAttribute("text-anchor","middle");
-  t.textContent = String(pc.id+1);
-  g.appendChild(t);
-
-  svg.appendChild(g);
-}
-
-// --- 버튼 이벤트 ---
-$("throwBtn").addEventListener("click", ()=>{
-  if(pendingMove || awaitingBranch) return;
-  pendingMove = randThrow();
-  log(`${players[turn].name} 던짐 → ${pendingMove.label}`);
-  updateUI();
+toggleNodesBtn.addEventListener("click", () => {
+  showNodes = !showNodes;
+  toggleNodesBtn.textContent = `노드 표시: ${showNodes ? "ON" : "OFF"}`;
   render();
 });
 
-$("endBtn").addEventListener("click", ()=>{
-  // (이동까지 끝난 뒤) 턴 종료는 자동 처리되므로, 여기서는 "강제 종료/패스"처럼 동작시키지 않음
-  // 필요하면 "던지고 이동할 말이 없으면 패스" 같은 룰로 확장 가능
-  log(`턴 종료(강제)`);
-  endTurn();
-});
+resetBtn.addEventListener("click", reset);
 
-$("branchOuter").addEventListener("click", ()=>chooseBranch("outer"));
-$("branchDiag").addEventListener("click", ()=>chooseBranch("diag"));
-
-// 초기화
-log("게임 시작");
-updateUI();
 render();
 </script>
 </body>
