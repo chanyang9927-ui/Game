@@ -1,562 +1,484 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>이찬송 연애시뮬레이션</title>
-  <style>
-    :root { --bg:#0b1020; --muted:#9aa4c7; --text:#e8ecff; }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body{
-      margin:0; min-height:100vh;
-      background: radial-gradient(1200px 800px at 20% 0%, #1b2a63 0%, var(--bg) 55%);
-      color:var(--text);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif;
-      padding: 18px 16px env(safe-area-inset-bottom);
-      display:flex; justify-content:center;
-    }
-    .wrap { width: min(820px, 100%); }
-
-    .btn{
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.08);
-      color: var(--text);
-      padding: 12px 14px;
-      border-radius: 14px;
-      font-weight: 900;
-      cursor:pointer;
-      touch-action: manipulation;
-    }
-    .btn:active{ transform: translateY(1px); }
-    .btn.primary{
-      width: 100%;
-      padding: 14px 16px;
-      font-size: 16px;
-      background: rgba(37,99,235,.35);
-      border-color: rgba(37,99,235,.6);
-    }
-    .btn.danger{
-      background: rgba(239,68,68,.22);
-      border-color: rgba(239,68,68,.55);
-    }
-
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 18px;
-      padding: 16px;
-      box-shadow: 0 18px 50px rgba(0,0,0,.45);
-    }
-
-    /* ===== Start Screen ===== */
-    #startScreen{ min-height: calc(100vh - 36px); display:flex; align-items:center; }
-    .start-card{ width: 100%; padding: 22px; }
-    .title{ margin:0; font-size: 26px; letter-spacing: .2px; line-height: 1.15; }
-    .subtitle{ margin: 10px 0 0; font-size: 16px; color: rgba(232,236,255,.92); line-height: 1.5; font-weight: 800; }
-    .bullets{ margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
-    .bullet{
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
-      border-radius: 14px;
-      padding: 12px 12px;
-      color: rgba(232,236,255,.92);
-      line-height: 1.45;
-      font-size: 14px;
-    }
-    .muted{ color: var(--muted); }
-
-    /* ===== Game Screen ===== */
-    header{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom: 12px; }
-    h1.gameh1{ font-size: 16px; margin:0; color: rgba(232,236,255,.92); }
-    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end; }
-
-    .scene-title { font-size: 14px; color: var(--muted); margin:0 0 6px; }
-    .scene-text { font-size: 18px; line-height: 1.45; margin: 0; }
-
-    .choices{
-      margin-top: 14px;
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-    @media (min-width: 520px){
-      .choices{ grid-template-columns: 1fr 1fr; }
-    }
-    .choice{
-      display:flex; flex-direction:column;
-      border-radius: 16px;
-      overflow:hidden;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      cursor:pointer;
-      min-height: 220px;
-      touch-action: manipulation;
-    }
-    .choice:active{ transform: translateY(1px); }
-    .img{
-      width:100%;
-      height: 140px;
-      background: rgba(255,255,255,.06);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color: rgba(255,255,255,.75);
-      font-weight:900;
-    }
-    .img img{ width:100%; height:100%; object-fit: cover; display:block; }
-    .choice-body{ padding: 12px; display:flex; gap:8px; flex-direction:column; }
-    .choice-text{ font-size: 16px; font-weight: 900; margin:0; }
-    .choice-sub{ font-size: 13px; color: var(--muted); margin:0; line-height:1.35; }
-
-    .footer{
-      margin-top: 10px;
-      display:flex; gap:10px; align-items:center; justify-content:space-between;
-      color: var(--muted); font-size: 12px;
-    }
-    .pill{
-      padding: 6px 10px; border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
-    }
-
-    /* ===== Narrative (typewriter-ish) ===== */
-    .narrative{
-      margin-top: 12px;
-      border-top: 1px solid rgba(255,255,255,.12);
-      padding-top: 12px;
-      display: grid;
-      gap: 10px;
-    }
-    .line{
-      padding: 10px 12px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
-      border-radius: 14px;
-      line-height: 1.55;
-      font-size: 15px;
-      white-space: pre-wrap;
-    }
-    .line.small{ font-size: 14px; color: rgba(232,236,255,.92); opacity: .92; }
-    .line.muted{ color: var(--muted); }
-    .line.shake{
-      animation: shake .18s linear 4;
-      border-color: rgba(239,68,68,.45);
-    }
-    @keyframes shake {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(-2px); }
-      50% { transform: translateX(2px); }
-      75% { transform: translateX(-2px); }
-      100% { transform: translateX(0); }
-    }
-
-    .actions{
-      margin-top: 12px;
-      display: grid;
-      gap: 10px;
-    }
-
-    .hidden{ display:none !important; }
-
-    /* Dialog */
-    dialog{
-      border: 1px solid rgba(255,255,255,.18);
-      border-radius: 16px;
-      background: #0d1430;
-      color: var(--text);
-      width: min(560px, 92vw);
-      padding: 14px;
-    }
-    dialog::backdrop{ background: rgba(0,0,0,.55); }
-    .dlg-row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    label{ font-size: 13px; color: var(--muted); }
-    input[type="file"]{ color: var(--muted); }
-    .note{ font-size: 12px; color: var(--muted); margin-top: 8px; line-height:1.4; }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>웹 윷놀이 (프로토타입)</title>
+<style>
+  :root { --bg:#0b1020; --panel:#121a33; --text:#e9eeff; --muted:#9aa6c7; --line:#2a335a; }
+  * { box-sizing:border-box; }
+  body{
+    margin:0; padding:16px;
+    background: radial-gradient(1200px 800px at 20% 0%, #1b2a63 0%, var(--bg) 55%);
+    color:var(--text);
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif;
+  }
+  .wrap{ max-width:1100px; margin:0 auto; display:grid; gap:12px; grid-template-columns: 1fr 320px; }
+  @media (max-width: 980px){ .wrap{ grid-template-columns:1fr; } }
+  .board{
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:16px; padding:12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  .side{
+    background: rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:16px; padding:12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  h1{ font-size:18px; margin:0 0 10px; }
+  .row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  button{
+    background:#2a3cff; color:white; border:0;
+    padding:10px 12px; border-radius:10px; cursor:pointer;
+    font-weight:650;
+  }
+  button:disabled{ opacity:.45; cursor:not-allowed; }
+  .ghost{
+    background: transparent; color: var(--text);
+    border:1px solid rgba(255,255,255,.18);
+  }
+  .pill{
+    padding:6px 10px; border-radius:999px;
+    border:1px solid rgba(255,255,255,.16);
+    color:var(--muted); font-size:12px;
+  }
+  .log{
+    margin-top:10px; padding:10px; border-radius:12px;
+    background: rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.10);
+    height: 260px; overflow:auto; font-size:13px; line-height:1.35;
+  }
+  .hint{ color: var(--muted); font-size:12px; margin-top:8px; }
+  /* SVG styles */
+  svg{ width:100%; height:auto; display:block; }
+  .node{ fill: rgba(255,255,255,.06); stroke: rgba(255,255,255,.25); stroke-width:2; }
+  .node.start{ stroke: rgba(255,255,255,.55); }
+  .node.hot{ fill: rgba(42,60,255,.20); stroke: rgba(42,60,255,.85); }
+  .label{ fill: rgba(255,255,255,.75); font-size:12px; user-select:none; }
+  .edge{ stroke: rgba(255,255,255,.22); stroke-width:4; stroke-linecap:round; }
+  .piece{ cursor:pointer; }
+  .piece text{ font-size:12px; fill:#fff; font-weight:800; user-select:none; pointer-events:none; }
+  .piece circle{ stroke: rgba(255,255,255,.85); stroke-width:2; }
+  .piece.p0 circle{ fill:#ff4d6d; }
+  .piece.p1 circle{ fill:#4dd4ff; }
+  .selected circle{ stroke-width:4; }
+</style>
 </head>
 <body>
   <div class="wrap">
-
-    <!-- ===== 시작 화면 ===== -->
-    <section id="startScreen">
-      <div class="card start-card">
-        <h2 class="title">이찬송 연애시뮬레이션</h2>
-        <p class="subtitle">3가지 내용으로 대차게 차인 그의 연애 스토리 성공할 수 있을 것인가..?</p>
-
-        <ul class="bullets">
-          <li class="bullet"><b>차인 이유 #1</b> — “좋은 사람인데… 그냥 <b>연애 감정이 안 생겨</b>.”</li>
-          <li class="bullet"><b>차인 이유 #2</b> — “너는 너무 <b>착</b>해서… 나랑은 안 맞아.”</li>
-          <li class="bullet"><b>차인 이유 #3</b> — “내가 요즘 바빠서…” (번역: <b>너 말고 다른 일정</b>이 우선)</li>
-        </ul>
-
-        <p class="muted" style="margin:14px 0 12px; line-height:1.45;">
-          선택 하나로 분위기 박살 or 호감도 상승. 말 한 마디로 엔딩이 갈림.
-        </p>
-
-        <button class="btn primary" id="startBtn">연애 시뮬레이션 시작</button>
+    <div class="board">
+      <h1>웹 윷놀이 (프로토타입)</h1>
+      <svg id="svg" viewBox="0 0 640 640" aria-label="윷놀이 판"></svg>
+      <div class="hint">
+        사용법: ① 윷 던지기 → ② 움직일 말 클릭 → ③ (분기 선택이 뜨면) 선택 버튼 클릭.
       </div>
-    </section>
+    </div>
 
-    <!-- ===== 게임 화면 ===== -->
-    <section id="gameScreen" class="hidden">
-      <header>
-        <h1 class="gameh1">이찬송 연애시뮬레이션</h1>
-        <div class="row">
-          <button class="btn" id="backBtn">뒤로</button>
-          <button class="btn" id="restartBtn">처음</button>
-          <button class="btn" id="imgBtn">사진 바꾸기</button>
-        </div>
-      </header>
+    <div class="side">
+      <div class="row">
+        <span class="pill" id="turnPill">턴: -</span>
+        <span class="pill" id="statePill">상태: -</span>
+      </div>
+      <div style="height:10px"></div>
+      <div class="row">
+        <button id="throwBtn">윷 던지기</button>
+        <button id="endBtn" class="ghost">턴 종료</button>
+      </div>
+      <div style="height:10px"></div>
+      <div class="row">
+        <span class="pill" id="throwPill">결과: -</span>
+        <span class="pill" id="extraPill">추가턴: -</span>
+      </div>
+      <div style="height:10px"></div>
+      <div class="row" id="branchRow" style="display:none">
+        <button id="branchOuter" class="ghost">바깥길</button>
+        <button id="branchDiag" class="ghost">지름길</button>
+      </div>
 
-      <section class="card">
-        <p class="scene-title" id="sceneTitle"></p>
-        <p class="scene-text" id="sceneText"></p>
-
-        <div class="choices" id="choices"></div>
-
-        <!-- 선택 후 서술 영역 -->
-        <div class="narrative hidden" id="narrative"></div>
-
-        <!-- 다음단계/처음으로/종료 같은 액션 버튼 영역 -->
-        <div class="actions hidden" id="actions"></div>
-
-        <div class="footer">
-          <span class="pill" id="progress"></span>
-          <span class="pill" id="hint"></span>
-        </div>
-      </section>
-
-      <!-- 선택지 사진 업로드(브라우저에만 저장) -->
-      <dialog id="imgDlg">
-        <form method="dialog">
-          <h2 style="margin:0 0 10px; font-size:16px;">현재 장면 선택지 사진 바꾸기</h2>
-          <div class="dlg-row" style="margin-bottom:10px;">
-            <div style="flex:1; min-width:220px;">
-              <label>선택지 A 이미지 업로드</label><br/>
-              <input type="file" accept="image/*" id="fileA" />
-            </div>
-            <div style="flex:1; min-width:220px;">
-              <label>선택지 B 이미지 업로드</label><br/>
-              <input type="file" accept="image/*" id="fileB" />
-            </div>
-          </div>
-          <div class="dlg-row" style="justify-content:flex-end;">
-            <button class="btn" value="cancel">닫기</button>
-            <button class="btn" id="clearImgs" type="button">이 장면 사진 초기화</button>
-          </div>
-          <p class="note">
-            업로드한 이미지는 localStorage에 저장되어 “이 브라우저에서만” 보임.
-            GitHub Pages에 영구 반영하려면 images 폴더에 파일을 올리고, STORY에서 img 경로 지정.
-          </p>
-        </form>
-      </dialog>
-    </section>
+      <div class="log" id="log"></div>
+      <div class="hint">
+        구현됨: 이동/잡기(상대 원점)/윷·모 추가턴/지름길 분기(간단)<br/>
+        미구현: 업기(말 합치기), 더 정교한 분기 규칙, AI/온라인 멀티
+      </div>
+    </div>
   </div>
 
-  <script>
-    /*
-      ====== 현재 구현 범위 ======
-      - CHAPTER 1 (첫 질문) 2지선다
-      - A 선택: 서술 출력 + [다음 단계] 버튼 표시 (다음 단계는 아직 placeholder)
-      - B 선택: 서술 출력 + "첫인상은 되돌릴 수 없다" + 연애 실패 + [처음으로]/[게임 종료]
-    */
+<script>
+/**
+ * 노드/경로 모델
+ * - index 0 = 출발(시작/대기)
+ * - index 1..20 = 외곽 경로 (출발 다음 칸부터 한 바퀴)
+ * - index 21..25 = 대각(좌상→중앙→우하) 일부
+ * - index 26..28 = 대각(우상→중앙→좌하) 일부
+ *
+ * 이 프로토타입은 "표준 판의 완전한 29점 그래프"를 최대한 단순화한 형태로,
+ * 분기 가능한 지점(모서리/대각 시작점)에서 선택 UI를 띄운다.
+ */
 
-    const STORY = {
-      q1: {
-        id: "q1",
-        title: "CHAPTER 1 — 첫인상은 얼굴이 아니었다",
-        text:
-`약속 장소 앞.
-유리문 너머로 사람이 보인다.
-심장이 한 박자 빨라진다.
+// 좌표(보기 좋게 배치)
+const P = (x,y)=>({x,y});
 
-오늘,
-Seri는 얼굴을 보지 않는 사람이었다.
+// 바깥 5x5 그리드 코너/중간점 느낌으로 20개 배치
+// 레이아웃은 '십자형' 느낌: 외곽 + 중앙 + 대각
+const nodePos = [
+  P(80,560), // 0 START (좌하)
+  P(160,560),P(240,560),P(320,560),P(400,560), // 1-4 bottom
+  P(480,560), // 5 (우하 모서리)
+  P(480,480),P(480,400),P(480,320),P(480,240), // 6-9 right
+  P(480,160), // 10 (우상 모서리)
+  P(400,160),P(320,160),P(240,160),P(160,160), // 11-14 top
+  P(80,160), // 15 (좌상 모서리)
+  P(80,240),P(80,320),P(80,400),P(80,480), // 16-19 left
+  P(80,560), // 20 (출발 복귀=도착 취급용 포인트로 외곽상 동일좌표)
+  // 대각 1: 좌상(15) -> 중앙 -> 우하(5)
+  P(160,240),P(240,320),P(320,400),P(400,480),P(320,320), // 21-25 (25=중앙)
+  // 대각 2: 우상(10) -> 중앙 -> 좌하(0)
+  P(400,240),P(320,320),P(240,400) // 26-28 (27=중앙(공유))
+];
 
-“어떤 얼굴로 다가갈 것인가?”`,
-        choices: [
-          { key:"A", label:"안 씻은 얼굴로 들이댄다", sub:"날 것의 나로 승부한다", outcome:"q1A", img:"images/dirty_face.jpg" },
-          { key:"B", label:"최대한 깔끔하게 얼굴을 보여준다", sub:"오늘은 풀파워다", outcome:"q1B", img:"images/clean_face.jpg" },
-        ],
-      },
-    };
+// 노드 이름(표시용)
+const nodeName = (i)=>{
+  if(i===0) return "START";
+  if(i===20) return "GOAL";
+  if(i===25 || i===27) return "센터";
+  return String(i);
+};
 
-    // ===== 상태 =====
-    const state = {
-      cur: "q1",
-      history: [],
-      pendingNext: null, // "다음 단계" 눌렀을 때 이동할 곳(지금은 placeholder)
-    };
+// 기본 다음 노드(외곽 1..20)
+const nextOuter = new Map();
+for(let i=0;i<=19;i++){
+  // 0->1, 1->2 ... 19->20
+  nextOuter.set(i, i+1);
+}
+nextOuter.set(20, 20); // 도착 정지
 
-    // ===== DOM =====
-    const startScreen = document.getElementById("startScreen");
-    const gameScreen  = document.getElementById("gameScreen");
-    const startBtn    = document.getElementById("startBtn");
+// 지름길(nextDiag) - 단순 모델
+// 모서리에서 대각 진입을 허용하는 "선택형 분기"로 처리
+const nextDiag = new Map();
+// 좌상(15)에서 대각(21)로
+nextDiag.set(15, 21);
+nextDiag.set(21, 22);
+nextDiag.set(22, 25); // 중앙
+nextDiag.set(25, 23); // 중앙에서 우하 방향으로 나간다고 가정(단순)
+nextDiag.set(23, 24);
+nextDiag.set(24, 5);  // 우하 모서리
 
-    const sceneTitle  = document.getElementById("sceneTitle");
-    const sceneText   = document.getElementById("sceneText");
-    const choicesEl   = document.getElementById("choices");
-    const narrativeEl = document.getElementById("narrative");
-    const actionsEl   = document.getElementById("actions");
+// 우상(10)에서 대각(26)로
+nextDiag.set(10, 26);
+nextDiag.set(26, 27); // 중앙(공유)
+nextDiag.set(27, 28);
+nextDiag.set(28, 0);  // 좌하(출발)로
 
-    const progressEl  = document.getElementById("progress");
-    const hintEl      = document.getElementById("hint");
+// "분기 가능한 지점" 정의
+// - 15(좌상), 10(우상)에서 대각 진입 선택
+const branchPoints = new Set([15,10]);
 
-    const backBtn     = document.getElementById("backBtn");
-    const restartBtn  = document.getElementById("restartBtn");
-    const imgBtn      = document.getElementById("imgBtn");
-    const imgDlg      = document.getElementById("imgDlg");
+// --- 게임 상태 ---
+const players = [
+  { name:"P1(빨강)", cls:"p0" },
+  { name:"P2(파랑)", cls:"p1" }
+];
 
-    const fileA       = document.getElementById("fileA");
-    const fileB       = document.getElementById("fileB");
-    const clearImgs   = document.getElementById("clearImgs");
+const pieces = [
+  // 각 말: {p:playerIndex, id:0..3, pos:0(start), finished:false}
+  ...Array.from({length:4}, (_,id)=>({p:0,id,pos:0,finished:false})),
+  ...Array.from({length:4}, (_,id)=>({p:1,id,pos:0,finished:false}))
+];
 
-    // ===== 이미지 override(localStorage) =====
-    function imgKey(nodeId, choiceKey){ return `img_override:${nodeId}:${choiceKey}`; }
-    function getChoiceImage(nodeId, choice){
-      const over = localStorage.getItem(imgKey(nodeId, choice.key));
-      if (over) return over;
-      if (choice.img) return choice.img;
-      return "";
+let turn = 0;
+let pendingMove = null; // {steps, label, extraTurn:boolean}
+let selectedPieceKey = null; // "p-id"
+let awaitingBranch = null; // {pieceIndex, stepsRemaining, fromNode}
+
+const $ = (id)=>document.getElementById(id);
+const logEl = $("log");
+function log(msg){
+  const t = new Date().toLocaleTimeString("ko-KR",{hour12:false});
+  logEl.insertAdjacentHTML("beforeend", `<div><span style="color:#9aa6c7">[${t}]</span> ${msg}</div>`);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function pieceKey(pc){ return `${pc.p}-${pc.id}`; }
+function isOwnPiece(pc){ return pc.p===turn; }
+
+function updateUI(){
+  $("turnPill").textContent = `턴: ${players[turn].name}`;
+  $("statePill").textContent = pendingMove ? `상태: 말 선택` : `상태: 던지기`;
+  $("throwPill").textContent = `결과: ${pendingMove ? pendingMove.label : "-"}`;
+  $("extraPill").textContent = `추가턴: ${pendingMove ? (pendingMove.extraTurn ? "예" : "아니오") : "-"}`;
+
+  $("throwBtn").disabled = !!pendingMove || !!awaitingBranch;
+  $("endBtn").disabled = !!pendingMove || !!awaitingBranch; // 이동 전에는 종료 금지
+
+  // 분기 UI
+  $("branchRow").style.display = awaitingBranch ? "flex" : "none";
+}
+
+function endTurn(){
+  pendingMove = null;
+  selectedPieceKey = null;
+  awaitingBranch = null;
+  turn = (turn+1)%2;
+  updateUI();
+  render();
+}
+
+function randThrow(){
+  // 간단 확률 모델(실제 윷 확률과 다를 수 있음)
+  // 1~5 균등으로 두고, 필요하면 실확률로 바꿀 수 있음
+  const v = 1 + Math.floor(Math.random()*5);
+  const map = {1:"도(1)",2:"개(2)",3:"걸(3)",4:"윷(4)",5:"모(5)"};
+  return {steps:v,label:map[v], extraTurn: (v>=4)};
+}
+
+function clampToGoal(pos){
+  // 외곽에서 20이 도착, 그 이후는 정지
+  return pos>20 ? 20 : pos;
+}
+
+function moveOneStep(from, mode){
+  // mode: "outer" or "diag"
+  if(from===20) return 20;
+  if(mode==="diag" && nextDiag.has(from)) return nextDiag.get(from);
+  return nextOuter.get(from);
+}
+
+function resolveCapture(movedPieceIndex){
+  const m = pieces[movedPieceIndex];
+  if(m.finished) return;
+  // 같은 칸(0 제외)에서 상대 말이 있으면 잡기 -> 상대 말 START로
+  const targetPos = m.pos;
+  if(targetPos===0 || targetPos===20) return;
+
+  let captured = 0;
+  for(let i=0;i<pieces.length;i++){
+    if(i===movedPieceIndex) continue;
+    const o = pieces[i];
+    if(o.finished) continue;
+    if(o.pos===targetPos && o.p!==m.p){
+      o.pos = 0;
+      o.finished = false;
+      captured++;
     }
+  }
+  if(captured>0){
+    log(`${players[m.p].name}가 ${captured}개 말 잡음 → 추가턴 부여`);
+    // 잡으면 추가턴 (일반 룰 반영)
+    pendingMove.extraTurn = true;
+  }
+}
 
-    // ===== 화면 전환 =====
-    function showGame(){
-      startScreen.classList.add("hidden");
-      gameScreen.classList.remove("hidden");
-      render();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-    function showStart(){
-      gameScreen.classList.add("hidden");
-      startScreen.classList.remove("hidden");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+function applyMove(pieceIndex, steps, mode){
+  const pc = pieces[pieceIndex];
+  if(pc.finished) return;
 
-    // ===== UI Helpers =====
-    function clearNarrative(){
-      narrativeEl.innerHTML = "";
-      narrativeEl.classList.add("hidden");
-      actionsEl.innerHTML = "";
-      actionsEl.classList.add("hidden");
-    }
+  let pos = pc.pos;
+  for(let s=0;s<steps;s++){
+    pos = moveOneStep(pos, mode);
+    if(pos===20){ break; }
+  }
+  pc.pos = pos;
+  if(pos===20) pc.finished = true;
 
-    function addLine(text, opts = {}){
-      const div = document.createElement("div");
-      div.className = "line";
-      if (opts.small) div.classList.add("small");
-      if (opts.muted) div.classList.add("muted");
-      if (opts.shake) div.classList.add("shake");
-      div.textContent = text;
-      narrativeEl.appendChild(div);
-      narrativeEl.classList.remove("hidden");
-      return div;
-    }
+  resolveCapture(pieceIndex);
+}
 
-    function addActionButton(label, onClick, opts = {}){
-      const b = document.createElement("button");
-      b.className = "btn";
-      if (opts.primary) b.classList.add("primary");
-      if (opts.danger) b.classList.add("danger");
-      b.type = "button";
-      b.textContent = label;
-      b.addEventListener("click", onClick);
-      actionsEl.appendChild(b);
-      actionsEl.classList.remove("hidden");
-      return b;
-    }
+function onPieceClick(pieceIndex){
+  const pc = pieces[pieceIndex];
+  if(!pendingMove || awaitingBranch) return;
+  if(!isOwnPiece(pc)) return;
+  if(pc.finished) return;
 
-    function setChoicesEnabled(enabled){
-      const btns = choicesEl.querySelectorAll("button.choice");
-      btns.forEach(b => b.disabled = !enabled);
-    }
+  selectedPieceKey = pieceKey(pc);
 
-    // ===== Outcome 처리 =====
-    function playOutcome(outcomeId){
-      clearNarrative();
-      setChoicesEnabled(false);
+  // 분기 체크: 현재 위치가 분기점이고, 대각 진입이 가능하면 선택 띄우기
+  if(branchPoints.has(pc.pos) && nextDiag.has(pc.pos)){
+    awaitingBranch = { pieceIndex, steps: pendingMove.steps, from: pc.pos };
+    log(`분기 선택: ${players[turn].name} 말(${pc.id+1}) @${pc.pos} → 바깥길/지름길`);
+    updateUI();
+    render();
+    return;
+  }
 
-      if (outcomeId === "q1A"){
-        // A 루트 서술
-        addLine("그렇다.\nSeri는 아직\n내 얼굴을 보지 않았다.");
-        addLine("Seri가 나지막하게 말했다.", { muted: true });
-        addLine("“음… 저 오빠…”\n“오늘 그럴듯하게 생겼네.”", { small: true });
-        addLine("흐뭇.", { small: true });
+  // 분기 없음: 외곽 기본 이동
+  const steps = pendingMove.steps;
+  log(`${players[turn].name} 말(${pc.id+1}) ${pendingMove.label} 이동(바깥길)`);
+  applyMove(pieceIndex, steps, "outer");
 
-        // 다음 단계: 아직 2번째 질문이 없으므로 placeholder 안내
-        state.pendingNext = "placeholder";
-        addActionButton("다음 단계", () => {
-          // 나중에 q2 만들면 여기서 state.cur = "q2"; render(); 로 교체하면 됨
-          clearNarrative();
-          setChoicesEnabled(true);
-          addLine("다음 단계(placeholder)\n\n여기부터 2번째 질문을 붙이면 됨.", { muted: true });
-          addActionButton("처음으로", () => {
-            state.cur = "q1";
-            state.history = [];
-            render();
-          });
-        }, { primary: true });
+  // 이동 처리 후 턴 정리
+  const extra = pendingMove.extraTurn;
+  pendingMove = null;
+  selectedPieceKey = null;
 
-      } else if (outcomeId === "q1B"){
-        // B 루트: 연애 실패 엔딩
-        addLine("Seri:\n“으아아아아아—!!”", { shake: true });
-        addLine("“내 안에 있던 흑염룡이—”\n“너무 말끔한 외모로—”\n“더 들쳐져 버려이이잇…!!”", { shake: true });
-        addLine("……", { muted: true });
-        addLine("이래서\n첫인상은 되돌릴 수 없다.");
+  if(extra){
+    log(`추가턴`);
+    // 턴 유지
+  }else{
+    turn = (turn+1)%2;
+  }
 
-        addLine("연애 실패", { shake: true });
-        addLine("너무 많은 것이\n너무 빨리 보였다.", { muted: true });
+  // 승리 체크
+  if(checkWin()){
+    alert(`${players[turn].name} 승리! (프로토타입)`);
+  }
 
-        addActionButton("처음으로", () => {
-          state.cur = "q1";
-          state.history = [];
-          render();
-        }, { primary: true });
+  updateUI();
+  render();
+}
 
-        addActionButton("게임 종료", () => {
-          showStart();
-        }, { danger: true });
-      } else {
-        addLine("알 수 없는 outcome 입니다. 데이터를 확인하세요.", { muted: true });
-        addActionButton("처음으로", () => {
-          state.cur = "q1";
-          state.history = [];
-          render();
-        });
-      }
-    }
+function chooseBranch(mode){
+  if(!awaitingBranch || !pendingMove) return;
+  const {pieceIndex, steps} = awaitingBranch;
+  const pc = pieces[pieceIndex];
+  log(`${players[turn].name} 말(${pc.id+1}) ${pendingMove.label} 이동(${mode==="diag" ? "지름길" : "바깥길"})`);
+  applyMove(pieceIndex, steps, mode);
 
-    // ===== 렌더 =====
-    function render(){
-      const node = STORY[state.cur];
-      if (!node){
-        sceneTitle.textContent = "데이터 오류";
-        sceneText.textContent = "존재하지 않는 노드입니다.";
-        choicesEl.innerHTML = "";
-        clearNarrative();
-        progressEl.textContent = `진행: ${state.history.length} step`;
-        hintEl.textContent = `현재: ${state.cur}`;
-        return;
-      }
+  const extra = pendingMove.extraTurn;
+  pendingMove = null;
+  selectedPieceKey = null;
+  awaitingBranch = null;
 
-      sceneTitle.textContent = node.title || "";
-      sceneText.textContent = node.text || "";
+  if(extra){
+    log(`추가턴`);
+  }else{
+    turn = (turn+1)%2;
+  }
 
-      progressEl.textContent = `진행: ${state.history.length} step`;
-      hintEl.textContent = `노드 ID: ${node.id}`;
+  if(checkWin()){
+    alert(`${players[(turn+1)%2].name} 승리! (프로토타입)`);
+  }
 
-      clearNarrative();
+  updateUI();
+  render();
+}
 
-      choicesEl.innerHTML = "";
-      node.choices.forEach((c, idx) => {
-        const btn = document.createElement("button");
-        btn.className = "choice";
-        btn.type = "button";
+function checkWin(){
+  // 한 플레이어 말 4개가 모두 finished면 승리
+  for(let p=0;p<2;p++){
+    const all = pieces.filter(x=>x.p===p).every(x=>x.finished);
+    if(all) return true;
+  }
+  return false;
+}
 
-        const imgWrap = document.createElement("div");
-        imgWrap.className = "img";
-        const src = getChoiceImage(node.id, c);
-        if (src){
-          const img = document.createElement("img");
-          img.src = src;
-          img.alt = c.label;
-          img.loading = "lazy";
-          imgWrap.appendChild(img);
-        } else {
-          imgWrap.textContent = idx === 0 ? "A 이미지" : "B 이미지";
-        }
+// --- 렌더링(SVG) ---
+function render(){
+  const svg = $("svg");
+  svg.innerHTML = "";
 
-        const body = document.createElement("div");
-        body.className = "choice-body";
+  // edges (외곽)
+  for(let i=0;i<=19;i++){
+    drawEdge(svg, nodePos[i], nodePos[i+1]);
+  }
+  // 대각선 시각화
+  const diagEdges = [
+    [15,21],[21,22],[22,25],[25,23],[23,24],[24,5],
+    [10,26],[26,27],[27,28],[28,0]
+  ];
+  for(const [a,b] of diagEdges){
+    drawEdge(svg, nodePos[a], nodePos[b], true);
+  }
 
-        const t = document.createElement("p");
-        t.className = "choice-text";
-        t.textContent = c.label;
+  // nodes
+  for(let i=0;i<nodePos.length;i++){
+    const pos = nodePos[i];
+    const hot = branchPoints.has(i);
+    const isStart = (i===0);
+    drawNode(svg, pos, i, {hot, isStart});
+  }
 
-        const s = document.createElement("p");
-        s.className = "choice-sub";
-        s.textContent = c.sub || "";
+  // pieces
+  for(let i=0;i<pieces.length;i++){
+    const pc = pieces[i];
+    const base = nodePos[pc.pos];
+    // 같은 칸 겹침 방지용 오프셋(간단)
+    const same = pieces.filter(x=>x.pos===pc.pos && !x.finished);
+    const idx = same.findIndex(x=>x===pc);
+    const angle = (idx / Math.max(1,same.length)) * Math.PI * 2;
+    const r = same.length>1 ? 14 : 0;
+    const x = base.x + Math.cos(angle)*r;
+    const y = base.y + Math.sin(angle)*r;
 
-        body.appendChild(t);
-        body.appendChild(s);
+    drawPiece(svg, x, y, pc, i);
+  }
+}
 
-        btn.appendChild(imgWrap);
-        btn.appendChild(body);
+function drawEdge(svg, a, b, diag=false){
+  const e = document.createElementNS("http://www.w3.org/2000/svg","line");
+  e.setAttribute("x1", a.x); e.setAttribute("y1", a.y);
+  e.setAttribute("x2", b.x); e.setAttribute("y2", b.y);
+  e.setAttribute("class", "edge");
+  if(diag){
+    e.setAttribute("stroke-dasharray","8 10");
+  }
+  svg.appendChild(e);
+}
 
-        btn.addEventListener("click", () => {
-          // 이번 버전은 "다음 노드 이동" 대신 "outcome 플레이"
-          state.history.push(state.cur);
-          playOutcome(c.outcome);
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        });
+function drawNode(svg, pos, idx, opts){
+  const g = document.createElementNS("http://www.w3.org/2000/svg","g");
 
-        choicesEl.appendChild(btn);
-      });
+  const c = document.createElementNS("http://www.w3.org/2000/svg","circle");
+  c.setAttribute("cx", pos.x);
+  c.setAttribute("cy", pos.y);
+  c.setAttribute("r", 18);
+  c.setAttribute("class", `node ${opts.isStart ? "start" : ""} ${opts.hot ? "hot" : ""}`);
+  g.appendChild(c);
 
-      backBtn.disabled = state.history.length === 0;
-      setChoicesEnabled(true);
-    }
+  const t = document.createElementNS("http://www.w3.org/2000/svg","text");
+  t.setAttribute("x", pos.x);
+  t.setAttribute("y", pos.y + 4);
+  t.setAttribute("text-anchor","middle");
+  t.setAttribute("class","label");
+  t.textContent = nodeName(idx);
+  g.appendChild(t);
 
-    // ===== 이벤트 =====
-    startBtn.addEventListener("click", () => showGame());
+  svg.appendChild(g);
+}
 
-    backBtn.addEventListener("click", () => {
-      const prev = state.history.pop();
-      if (!prev) return;
-      state.cur = prev;
-      render();
-    });
+function drawPiece(svg, x, y, pc, pieceIndex){
+  const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+  g.setAttribute("class", `piece ${players[pc.p].cls} ${selectedPieceKey===pieceKey(pc) ? "selected" : ""}`);
+  g.addEventListener("click", ()=>onPieceClick(pieceIndex));
 
-    // “처음” 버튼: 타이틀 화면으로
-    restartBtn.addEventListener("click", () => {
-      state.cur = "q1";
-      state.history = [];
-      showStart();
-    });
+  const c = document.createElementNS("http://www.w3.org/2000/svg","circle");
+  c.setAttribute("cx", x); c.setAttribute("cy", y);
+  c.setAttribute("r", 14);
+  g.appendChild(c);
 
-    imgBtn.addEventListener("click", () => {
-      fileA.value = "";
-      fileB.value = "";
-      imgDlg.showModal();
-    });
+  const t = document.createElementNS("http://www.w3.org/2000/svg","text");
+  t.setAttribute("x", x);
+  t.setAttribute("y", y+4);
+  t.setAttribute("text-anchor","middle");
+  t.textContent = String(pc.id+1);
+  g.appendChild(t);
 
-    function fileToDataURL(file){
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result || ""));
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
+  svg.appendChild(g);
+}
 
-    fileA.addEventListener("change", async () => {
-      const node = STORY[state.cur];
-      const f = fileA.files?.[0];
-      if (!f || !node) return;
-      const data = await fileToDataURL(f);
-      localStorage.setItem(imgKey(node.id, "A"), data);
-      render();
-    });
+// --- 버튼 이벤트 ---
+$("throwBtn").addEventListener("click", ()=>{
+  if(pendingMove || awaitingBranch) return;
+  pendingMove = randThrow();
+  log(`${players[turn].name} 던짐 → ${pendingMove.label}`);
+  updateUI();
+  render();
+});
 
-    fileB.addEventListener("change", async () => {
-      const node = STORY[state.cur];
-      const f = fileB.files?.[0];
-      if (!f || !node) return;
-      const data = await fileToDataURL(f);
-      localStorage.setItem(imgKey(node.id, "B"), data);
-      render();
-    });
+$("endBtn").addEventListener("click", ()=>{
+  // (이동까지 끝난 뒤) 턴 종료는 자동 처리되므로, 여기서는 "강제 종료/패스"처럼 동작시키지 않음
+  // 필요하면 "던지고 이동할 말이 없으면 패스" 같은 룰로 확장 가능
+  log(`턴 종료(강제)`);
+  endTurn();
+});
 
-    clearImgs.addEventListener("click", () => {
-      const node = STORY[state.cur];
-      if (!node) return;
-      localStorage.removeItem(imgKey(node.id, "A"));
-      localStorage.removeItem(imgKey(node.id, "B"));
-      render();
-    });
+$("branchOuter").addEventListener("click", ()=>chooseBranch("outer"));
+$("branchDiag").addEventListener("click", ()=>chooseBranch("diag"));
 
-    // 초기: 타이틀
-    showStart();
-  </script>
+// 초기화
+log("게임 시작");
+updateUI();
+render();
+</script>
 </body>
 </html>
