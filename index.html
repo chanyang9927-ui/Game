@@ -218,25 +218,42 @@ function shortestPath(start, goal){
   return [start]; // 연결 안되면(사실상 없음)
 }
 
+  const REMOVE_EDGES = new Set([
+  "1-6",
+  "5-6",
+  "3-8",
+  "8-9",
+  "15-16",
+  "16-21",
+  "18-19",
+  "18-23"
+]);
+
 // 렌더
 function render(tempPiece=null){
   svg.innerHTML = "";
 
-  // 간선 그리기 (중복 방지: i<j만)
-  for(let a=0;a<25;a++){
-    const pa = posOf(a);
-    for(const b of adj[a]){
-      if(a >= b) continue;
-      const pb = posOf(b);
+ // 간선 그리기 (중복 방지: i<j만)
+for(let a=0;a<25;a++){
+  const pa = posOf(a);
 
-      const isDiag = isDiagonalEdge(a,b);
-      const line = document.createElementNS("http://www.w3.org/2000/svg","line");
-      line.setAttribute("x1", pa.x); line.setAttribute("y1", pa.y);
-      line.setAttribute("x2", pb.x); line.setAttribute("y2", pb.y);
-      line.setAttribute("class", `edge ${isDiag ? "diag" : ""}`);
-      svg.appendChild(line);
-    }
+  for(const b of adj[a]){
+    if(a >= b) continue;
+
+    // ✅ 특정 간선 제거 (a<b 형태로만 검사하면 됨)
+    if (REMOVE_EDGES.has(`${a}-${b}`)) continue;
+
+    const pb = posOf(b);
+    const isDiag = isDiagonalEdge(a,b);
+
+    const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+    line.setAttribute("x1", pa.x); line.setAttribute("y1", pa.y);
+    line.setAttribute("x2", pb.x); line.setAttribute("y2", pb.y);
+    line.setAttribute("class", `edge ${isDiag ? "diag" : ""}`);
+    svg.appendChild(line);
   }
+}
+
 
 // 노드
 for(let i=0;i<25;i++){
